@@ -315,6 +315,13 @@
     <div id="tab-settings" class="tab">
       <div class="page-header"><h1>Settings</h1></div>
       <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="sync-dot syncing" id="sync-dot-mobile"></span>
+          <span id="sync-label-mobile" style="font-size:13px;color:var(--ink-mid)">Connecting...</span>
+        </div>
+        <button class="btn btn-sm" onclick="loadFromBin()">↻ Sync</button>
+      </div>
         <div class="section-label">Meal planning</div>
         <div class="field">
           <label>Dinners per week</label>
