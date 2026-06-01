@@ -193,6 +193,7 @@
   @media (min-width: 681px) {
     .bottom-nav { display: none; }
     .mobile-sync-bar { display: none; }
+    #mobile-sync-footer { display: none !important; }
     .modal-bg { align-items: flex-start; padding: 2rem; }
     .modal { border-radius: var(--radius-lg); max-height: 85vh; }
     .modal-handle { display: none; }
@@ -239,12 +240,6 @@
       <button class="btn btn-sm" style="width:100%;font-size:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.1)" onclick="loadFromBin()">↻ Sync now</button>
     </div>
   </aside>
-
-  <div class="mobile-sync-bar" id="mobile-sync-bar">
-    <span class="sync-dot syncing" id="sync-dot-mobile"></span>
-    <span id="sync-label-mobile" style="flex:1;font-size:12px">Connecting...</span>
-    <button class="btn btn-sm" style="font-size:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.15);padding:4px 10px" onclick="loadFromBin()">↻</button>
-  </div>
 
   <main class="main">
 
@@ -466,8 +461,10 @@ function setSyncStatus(state, sub){
   document.getElementById('sync-dot').className='sync-dot '+dc;
   document.getElementById('sync-label-main').textContent=states[state]||'Connecting...';
   document.getElementById('sync-label-sub').textContent=sub?' · '+sub:'';
+  const mf=document.getElementById('mobile-sync-footer');
   document.getElementById('sync-dot-mobile').className='sync-dot '+dc;
   document.getElementById('sync-label-mobile').textContent=(states[state]||'Connecting...')+(sub?' · '+sub:'');
+  if(mf) mf.style.display=state==='syncing'?'block':'none';
 }
 
 async function loadFromBin(){
@@ -690,9 +687,11 @@ function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderSh
 // ── Generate full plan ───────────────────────────────────────────────────────
 async function generatePlan(){
   if(S.recipes.length<2){ alert('Add at least 2 recipes first.'); return; }
+  const {key}=getWeek(S.weekOffset);
+  const existingMeals=Object.keys(S.weeks[key]||{}).length;
+  if(existingMeals>0 && !confirm('Replace this week\'s meals with a new plan?')) return;
   const st=document.getElementById('status-planner');
   st.style.display='flex';
-  const {key}=getWeek(S.weekOffset);
   const mpw=S.settings.mealsPerWeek||5;
   const recent=[];
   for(let i=1;i<=(S.settings.avoidWeeks||2);i++){
@@ -889,5 +888,10 @@ function markPurchased(){
 
 applySettings(); renderAll(); loadFromBin();
 </script>
+
+<div id="mobile-sync-footer" style="display:none;position:fixed;bottom:calc(var(--bottom-nav-h) + 6px);left:50%;transform:translateX(-50%);background:rgba(28,28,26,0.75);color:rgba(255,255,255,0.7);font-size:11px;padding:4px 12px;border-radius:99px;pointer-events:none;z-index:99;white-space:nowrap">
+  <span class="sync-dot syncing" id="sync-dot-mobile" style="width:5px;height:5px;margin-right:5px"></span><span id="sync-label-mobile">Syncing...</span>
+</div>
+  
 </body>
 </html>
