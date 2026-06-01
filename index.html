@@ -21,19 +21,29 @@
     --border-strong: rgba(28,28,26,0.22);
     --radius: 10px;
     --radius-lg: 16px;
+    --sidebar-w: 220px;
+    --bottom-nav-h: 64px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
   body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); font-size: 15px; line-height: 1.6; min-height: 100vh; }
 
+  /* ── Layout ── */
   .shell { display: flex; min-height: 100vh; }
-  .sidebar { width: 220px; flex-shrink: 0; background: var(--ink); padding: 2rem 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; }
-  .main { margin-left: 220px; flex: 1; padding: 2.5rem 2.5rem 4rem; max-width: 860px; }
+
+  /* Desktop sidebar */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0; background: var(--ink);
+    padding: 2rem 0; display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+  }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 2.5rem 2.5rem 4rem; max-width: 860px; }
 
   .sidebar-logo { padding: 0 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem; }
-  .sidebar-logo .wordmark { font-family: 'Lora', serif; font-size: 18px; color: #fff; letter-spacing: 0.01em; }
+  .sidebar-logo .wordmark { font-family: 'Lora', serif; font-size: 18px; color: #fff; }
   .sidebar-logo .sub { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
 
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 1.5rem; font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 1.5rem; font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; user-select: none; }
   .nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
   .nav-item.active { color: #fff; border-left-color: var(--terracotta); background: rgba(255,255,255,0.06); }
   .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
@@ -47,17 +57,37 @@
   .sync-label { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
   .sync-label strong { color: rgba(255,255,255,0.7); display: block; font-weight: 400; font-size: 12px; }
 
+  /* Mobile bottom nav */
+  .bottom-nav {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--bottom-nav-h); background: var(--ink); z-index: 100;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav-inner { display: flex; height: 100%; }
+  .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: rgba(255,255,255,0.4); cursor: pointer; transition: color 0.15s; font-size: 10px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; user-select: none; }
+  .bottom-nav-item svg { width: 20px; height: 20px; }
+  .bottom-nav-item.active { color: var(--terracotta); }
+  .bottom-nav-item:active { opacity: 0.7; }
+
+  /* Mobile sync bar */
+  .mobile-sync-bar { display: none; align-items: center; gap: 8px; padding: 8px 16px; background: var(--ink); font-size: 12px; color: rgba(255,255,255,0.5); }
+
+  /* ── Tabs ── */
   .tab { display: none; } .tab.active { display: block; }
 
-  .page-header { margin-bottom: 2rem; }
-  .page-header h1 { font-family: 'Lora', serif; font-size: 28px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
+  /* ── Page header ── */
+  .page-header { margin-bottom: 1.5rem; }
+  .page-header h1 { font-family: 'Lora', serif; font-size: 26px; font-weight: 400; margin-bottom: 4px; }
   .page-header p { font-size: 14px; color: var(--ink-mid); }
 
+  /* ── Cards ── */
   .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px; }
 
-  .btn { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: #fff; color: var(--ink); cursor: pointer; transition: all 0.15s; font-weight: 400; }
+  /* ── Buttons ── */
+  .btn { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: #fff; color: var(--ink); cursor: pointer; transition: all 0.15s; font-weight: 400; touch-action: manipulation; }
   .btn:hover { background: var(--cream-dark); }
-  .btn:active { transform: scale(0.98); }
+  .btn:active { transform: scale(0.97); }
   .btn-primary { background: var(--ink); color: #fff; border-color: transparent; }
   .btn-primary:hover { background: #333; }
   .btn-terra { background: var(--terracotta); color: #fff; border-color: transparent; }
@@ -67,80 +97,123 @@
   .btn-ghost:hover { background: var(--cream-dark); color: var(--ink); }
   .btn-danger { color: #b83030; border-color: rgba(184,48,48,0.2); background: transparent; }
   .btn-danger:hover { background: #fdf0f0; }
+  .btn-full { width: 100%; padding: 14px; font-size: 15px; border-radius: var(--radius-lg); }
 
+  /* ── Forms ── */
   .field { margin-bottom: 14px; }
   .field label { font-size: 12px; font-weight: 500; color: var(--ink-mid); display: block; margin-bottom: 5px; letter-spacing: 0.03em; text-transform: uppercase; }
   input[type=text], input[type=url], input[type=number], input[type=password], select, textarea {
-    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+    font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--ink);
     background: #fff; border: 1px solid var(--border-strong); border-radius: var(--radius);
-    padding: 8px 12px; width: 100%; transition: border-color 0.15s;
+    padding: 10px 12px; width: 100%; transition: border-color 0.15s;
+    -webkit-appearance: none; appearance: none;
   }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--terracotta); }
-  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; font-size: 15px; }
 
   .row { display: flex; gap: 8px; align-items: center; }
   .row-between { display: flex; justify-content: space-between; align-items: center; }
-  .row-gap { display: flex; gap: 10px; }
+  .row-gap { display: flex; gap: 8px; flex-wrap: wrap; }
 
+  /* ── Badges ── */
   .badge { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
   .badge-sage { background: var(--sage-light); color: var(--sage); }
   .badge-terra { background: var(--terracotta-light); color: var(--terracotta); }
   .badge-muted { background: var(--cream-dark); color: var(--ink-mid); }
 
+  /* ── Status bar ── */
   .status-bar { font-size: 13px; color: var(--ink-mid); padding: 10px 14px; background: var(--cream-dark); border-radius: var(--radius); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
   .spinner { width: 14px; height: 14px; border: 2px solid var(--border-strong); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── Planner ── */
+  .week-nav { display: flex; align-items: center; gap: 8px; }
   .week-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 400; }
   .week-sub { font-size: 13px; color: var(--ink-light); }
 
-  .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 8px; transition: border-color 0.15s; }
-  .meal-slot:hover { border-color: var(--border-strong); }
+  .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
   .meal-slot .day-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; }
   .meal-slot .meal-name { font-family: 'Lora', serif; font-size: 17px; font-weight: 400; }
   .meal-slot .meal-meta { font-size: 12px; color: var(--ink-mid); margin-top: 3px; }
   .meal-slot.empty-slot { border-style: dashed; background: transparent; }
   .meal-slot.empty-slot .meal-name { color: var(--ink-light); font-family: 'DM Sans', sans-serif; font-size: 14px; font-style: italic; }
 
-  .recipe-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 8px; }
+  /* ── Recipes ── */
+  .recipe-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
   .recipe-card-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 400; margin-bottom: 4px; }
   .recipe-card-meta { font-size: 12px; color: var(--ink-mid); }
   .recipe-card-ings { font-size: 12px; color: var(--ink-light); margin-top: 5px; }
 
-  .pantry-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  /* ── Pantry ── */
+  .pantry-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
   .pantry-row:last-child { border-bottom: none; }
-  .pantry-name { flex: 2; font-size: 14px; }
-  .pantry-qty { flex: 1; font-size: 14px; font-weight: 500; }
-  .pantry-unit { flex: 0 0 40px; font-size: 13px; color: var(--ink-light); }
-  .pantry-bar-wrap { flex: 2; }
+  .pantry-name { flex: 2; font-size: 14px; min-width: 0; }
+  .pantry-qty { flex: 0 0 auto; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .pantry-unit { flex: 0 0 auto; font-size: 12px; color: var(--ink-light); }
+  .pantry-bar-wrap { flex: 2; min-width: 0; }
   .pantry-bar { height: 3px; background: var(--cream-dark); border-radius: 99px; overflow: hidden; }
   .pantry-bar-fill { height: 100%; border-radius: 99px; }
   .pantry-pct { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
 
+  /* ── Shopping ── */
   .shop-cat { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin: 1.25rem 0 6px; }
   .shop-cat:first-child { margin-top: 0; }
-  .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .shop-row:last-child { border-bottom: none; }
-  .shop-qty { font-size: 13px; color: var(--ink-mid); }
+  .shop-qty { font-size: 13px; color: var(--ink-mid); white-space: nowrap; margin-left: 8px; }
 
-  .ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
-  .ing-row input, .ing-row select { padding: 6px 10px; font-size: 13px; }
+  /* ── Ingredient rows ── */
+  .ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+  .ing-row input, .ing-row select { padding: 8px 10px; font-size: 14px; }
 
-  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(28,28,26,0.5); z-index: 500; padding: 2rem; overflow-y: auto; backdrop-filter: blur(2px); align-items: flex-start; justify-content: center; }
+  /* ── Modal ── */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(28,28,26,0.5); z-index: 500; padding: 1rem; overflow-y: auto; backdrop-filter: blur(2px); align-items: flex-end; justify-content: center; }
   .modal-bg.open { display: flex; }
-  .modal { background: #fff; border-radius: var(--radius-lg); padding: 1.75rem; width: 100%; max-width: 560px; border: 1px solid var(--border); }
+  .modal { background: #fff; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 1.5rem 1.25rem; width: 100%; max-width: 600px; border: 1px solid var(--border); max-height: 92vh; overflow-y: auto; }
+  .modal-handle { width: 36px; height: 4px; background: var(--cream-dark); border-radius: 99px; margin: 0 auto 1.25rem; }
   .modal-title { font-family: 'Lora', serif; font-size: 20px; font-weight: 400; margin-bottom: 1.25rem; }
 
+  /* ── Misc ── */
   .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
   .section-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; margin-top: 1.25rem; }
   .section-label:first-child { margin-top: 0; }
-
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--ink-light); }
   .empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.3; }
   .empty-state p { font-size: 14px; }
-
-  .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--ink); color: #fff; font-size: 13px; padding: 10px 16px; border-radius: var(--radius); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
+  .toast { position: fixed; bottom: calc(var(--bottom-nav-h) + 12px); left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 99px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; white-space: nowrap; }
   .toast.show { opacity: 1; }
+
+  /* ── Mobile overrides ── */
+  @media (max-width: 680px) {
+    .sidebar { display: none; }
+    .bottom-nav { display: block; }
+    .mobile-sync-bar { display: flex; }
+    .main {
+      margin-left: 0;
+      padding: 1.25rem 1rem calc(var(--bottom-nav-h) + 1.5rem);
+      max-width: 100%;
+    }
+    .page-header h1 { font-size: 22px; }
+    .modal-bg { align-items: flex-end; padding: 0; }
+    .modal { border-radius: var(--radius-lg) var(--radius-lg) 0 0; max-height: 90vh; }
+    .week-title { font-size: 18px; }
+    .meal-slot .meal-name { font-size: 15px; }
+    .ing-row { flex-wrap: wrap; }
+    .ing-row input, .ing-row select { min-width: 0; }
+    .row-gap { gap: 6px; }
+    .btn-full-mobile { width: 100%; padding: 14px; font-size: 15px; }
+    .hide-mobile { display: none !important; }
+    .card { padding: 1rem; }
+    .pantry-bar-wrap { display: none; }
+  }
+
+  @media (min-width: 681px) {
+    .bottom-nav { display: none; }
+    .mobile-sync-bar { display: none; }
+    .modal-bg { align-items: flex-start; padding: 2rem; }
+    .modal { border-radius: var(--radius-lg); max-height: 85vh; }
+    .modal-handle { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -148,6 +221,7 @@
 <div class="toast" id="toast"></div>
 
 <div class="shell">
+  <!-- Desktop sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="wordmark">Meal Planner</div>
@@ -184,70 +258,85 @@
     </div>
   </aside>
 
+  <!-- Mobile sync bar -->
+  <div class="mobile-sync-bar" id="mobile-sync-bar">
+    <span class="sync-dot syncing" id="sync-dot-mobile"></span>
+    <span id="sync-label-mobile" style="flex:1;font-size:12px">Connecting...</span>
+    <button class="btn btn-sm" style="font-size:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.15);padding:4px 10px" onclick="loadFromBin()">↻</button>
+  </div>
+
   <main class="main">
 
+    <!-- PLANNER -->
     <div id="tab-planner" class="tab active">
       <div class="page-header">
-        <div class="row-between">
-          <div>
-            <div class="row" style="gap:10px;margin-bottom:4px">
-              <button class="btn btn-sm btn-ghost" onclick="changeWeek(-1)">←</button>
-              <h1 class="week-title" id="week-title">This week</h1>
-              <button class="btn btn-sm btn-ghost" onclick="changeWeek(1)">→</button>
-            </div>
-            <p class="week-sub" id="week-sub"></p>
+        <div class="row-between" style="margin-bottom:4px">
+          <div class="week-nav">
+            <button class="btn btn-sm btn-ghost" onclick="changeWeek(-1)" style="padding:6px 10px">←</button>
+            <h1 class="week-title" id="week-title">This week</h1>
+            <button class="btn btn-sm btn-ghost" onclick="changeWeek(1)" style="padding:6px 10px">→</button>
           </div>
-          <button class="btn btn-terra" onclick="generatePlan()">✦ Generate plan</button>
+          <button class="btn btn-terra btn-sm hide-mobile" onclick="generatePlan()">✦ Generate</button>
         </div>
+        <p class="week-sub" id="week-sub"></p>
       </div>
-      <div id="status-planner" style="display:none" class="status-bar"><div class="spinner"></div><span id="status-planner-txt">Generating your meal plan...</span></div>
+      <div id="status-planner" style="display:none" class="status-bar"><div class="spinner"></div><span id="status-planner-txt">Claude is choosing your meals...</span></div>
       <div id="planner-slots"></div>
       <div id="planner-empty" class="empty-state">
         <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <p>No meals planned yet.<br>Add some recipes, then hit Generate plan.</p>
+        <p>No meals planned yet.<br>Add some recipes, then generate a plan.</p>
+      </div>
+      <!-- Mobile generate button -->
+      <div style="margin-top:16px">
+        <button class="btn btn-terra btn-full btn-full-mobile" onclick="generatePlan()" style="display:none" id="mobile-generate-btn">✦ Generate plan</button>
       </div>
     </div>
 
+    <!-- RECIPES -->
     <div id="tab-recipes" class="tab">
       <div class="page-header">
         <div class="row-between">
           <h1>Recipe bank</h1>
           <div class="row-gap">
-            <button class="btn btn-sm" onclick="openModal('url')">+ From URL</button>
-            <button class="btn btn-primary btn-sm" onclick="openModal('manual')">+ Add recipe</button>
+            <button class="btn btn-sm hide-mobile" onclick="openModal('url')">+ From URL</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('manual')">+ Add</button>
           </div>
         </div>
       </div>
+      <button class="btn btn-sm" style="width:100%;margin-bottom:12px;display:none" id="mobile-url-btn" onclick="openModal('url')">+ Add from URL</button>
       <div id="recipe-list"></div>
     </div>
 
+    <!-- PANTRY -->
     <div id="tab-pantry" class="tab">
       <div class="page-header">
         <div class="row-between">
           <h1>Pantry</h1>
-          <button class="btn btn-primary btn-sm" onclick="openModal('pantry')">+ Add item</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('pantry')">+ Add</button>
         </div>
-        <p>Stock is deducted each time a meal plan is generated. Items appear on your shopping list when stock falls below 15%.</p>
+        <p>Stock is deducted when a plan is generated. Items appear on the shopping list below 15%.</p>
       </div>
-      <div class="card" style="padding:0 1.5rem">
+      <div class="card" style="padding:0 1rem">
         <div id="pantry-list"></div>
       </div>
     </div>
 
+    <!-- SHOPPING -->
     <div id="tab-shopping" class="tab">
       <div class="page-header">
         <div class="row-between">
           <h1>Shopping list</h1>
           <div class="row-gap">
-            <button class="btn btn-sm" onclick="copyList()">Copy list</button>
-            <button class="btn btn-primary btn-sm" onclick="markPurchased()">✓ Mark purchased</button>
+            <button class="btn btn-sm" onclick="copyList()">Copy</button>
+            <button class="btn btn-primary btn-sm" onclick="markPurchased()">✓ Purchased</button>
           </div>
         </div>
-        <p>Based on this week's plan. Pantry items with sufficient stock are excluded.</p>
+        <p>Based on this week's plan. Items with sufficient stock are excluded.</p>
       </div>
       <div id="shopping-wrap"></div>
     </div>
 
+    <!-- SETTINGS -->
     <div id="tab-settings" class="tab">
       <div class="page-header"><h1>Settings</h1></div>
       <div class="card">
@@ -279,11 +368,11 @@
             <span class="badge badge-terra" style="margin-right:4px">PCOS-friendly</span>
             <span class="badge badge-muted">High protein</span>
           </div>
-          Baked into all AI-generated plans. Optimised for insulin sensitivity, anti-inflammation, and 110–140g protein per day.
+          Baked into all AI-generated plans.
         </div>
         <div class="divider"></div>
         <div class="section-label">Data</div>
-        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">All data syncs to JSONBin automatically on every change.</div>
+        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">All data syncs to JSONBin automatically.</div>
         <div class="row-gap">
           <button class="btn btn-sm" onclick="loadFromBin()">Sync now</button>
           <button class="btn btn-sm btn-danger" onclick="clearAll()">Clear all data</button>
@@ -294,8 +383,36 @@
   </main>
 </div>
 
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bottom-nav-item active" id="bn-planner" onclick="showTabMobile('planner')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Plan
+    </div>
+    <div class="bottom-nav-item" id="bn-recipes" onclick="showTabMobile('recipes')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      Recipes
+    </div>
+    <div class="bottom-nav-item" id="bn-pantry" onclick="showTabMobile('pantry')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      Pantry
+    </div>
+    <div class="bottom-nav-item" id="bn-shopping" onclick="showTabMobile('shopping')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+      Shop
+    </div>
+    <div class="bottom-nav-item" id="bn-settings" onclick="showTabMobile('settings')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      More
+    </div>
+  </div>
+</nav>
+
+<!-- Modal -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
+    <div class="modal-handle"></div>
     <div class="row-between" style="margin-bottom:1.25rem">
       <div class="modal-title" id="modal-title"></div>
       <button class="btn btn-sm btn-ghost" onclick="closeModal()">✕</button>
@@ -305,7 +422,6 @@
 </div>
 
 <script>
-// JSONBin credentials (storage only, not secret)
 const JB_KEY = '$2a$10$YCxfYdd0/BPMvaRAxk8yiuil9T0PEawZFz/q1TPKkleMutgDgllZu';
 const JB_BIN = '6a1db47c21f9ee59d2a649fd';
 
@@ -326,6 +442,7 @@ const CATS = ['Fish & seafood','Produce','Dairy & eggs','Grains & pulses','Pantr
 
 let S = { recipes:[], pantry:[], weeks:{}, settings:{ mealsPerWeek:5, avoidWeeks:2 }, weekOffset:0 };
 let saveTimer = null;
+let isMobile = () => window.innerWidth <= 680;
 
 function uid(p){ return p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
 
@@ -347,37 +464,46 @@ function showTab(name, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   el.classList.add('active');
-  ({planner:renderPlanner,recipes:renderRecipes,pantry:renderPantry,shopping:renderShopping})[name]?.();
+  onTabChange(name);
+}
+
+function showTabMobile(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('bn-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  onTabChange(name);
+}
+
+function onTabChange(name){
+  // Show/hide mobile-specific elements
+  const genBtn = document.getElementById('mobile-generate-btn');
+  const urlBtn = document.getElementById('mobile-url-btn');
+  if(genBtn) genBtn.style.display = (name==='planner' && isMobile()) ? 'block' : 'none';
+  if(urlBtn) urlBtn.style.display = (name==='recipes' && isMobile()) ? 'block' : 'none';
+  const renders = {planner:renderPlanner,recipes:renderRecipes,pantry:renderPantry,shopping:renderShopping};
+  renders[name]?.();
 }
 
 function changeWeek(d){ S.weekOffset+=d; renderPlanner(); }
 
 function setSyncStatus(state, sub){
-  const dot=document.getElementById('sync-dot');
-  const lbl=document.getElementById('sync-label-main');
-  const sublbl=document.getElementById('sync-label-sub');
-  dot.className='sync-dot '+(state==='ok'?'ok':state==='error'?'error':'syncing');
-  lbl.textContent=state==='ok'?'Synced':state==='error'?'Sync failed':'Syncing...';
-  sublbl.textContent=sub?' · '+sub:'';
-}
-
-// All Anthropic API calls go through /api/proxy — key never touches the browser
-async function callAI(body){
-  const res=await fetch('/api/proxy',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(body)
-  });
-  if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error '+res.status); }
-  return res.json();
+  const states = {ok:'Synced', error:'Sync failed', syncing:'Syncing...'};
+  const dotClass = state==='ok'?'ok':state==='error'?'error':'syncing';
+  // Desktop
+  document.getElementById('sync-dot').className='sync-dot '+dotClass;
+  document.getElementById('sync-label-main').textContent=states[state]||'Connecting...';
+  document.getElementById('sync-label-sub').textContent=sub?' · '+sub:'';
+  // Mobile
+  document.getElementById('sync-dot-mobile').className='sync-dot '+dotClass;
+  document.getElementById('sync-label-mobile').textContent=(states[state]||'Connecting...')+(sub?' · '+sub:'');
 }
 
 async function loadFromBin(){
   setSyncStatus('syncing','');
   try {
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`,{
-      headers:{'X-Master-Key':JB_KEY}
-    });
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`,{headers:{'X-Master-Key':JB_KEY}});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data=await r.json();
     const j=data.record;
@@ -385,12 +511,9 @@ async function loadFromBin(){
     if(j.pantry)  S.pantry=j.pantry;
     if(j.weeks)   S.weeks=j.weeks;
     if(j.settings) S.settings={...S.settings,...j.settings};
-    applySettings();
-    renderAll();
+    applySettings(); renderAll();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
-  } catch(e){
-    setSyncStatus('error', e.message.slice(0,30));
-  }
+  } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
 }
 
 async function saveToBin(){
@@ -403,15 +526,10 @@ async function saveToBin(){
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
-  } catch(e){
-    setSyncStatus('error', e.message.slice(0,30));
-  }
+  } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
 }
 
-function scheduleSave(){
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(saveToBin, 800);
-}
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToBin,800); }
 
 function applySettings(){
   const ms=document.getElementById('set-meals');
@@ -420,12 +538,7 @@ function applySettings(){
   if(aw) aw.value=S.settings.avoidWeeks||2;
 }
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
-
-function clearAll(){
-  if(!confirm('Clear all data? This cannot be undone.')) return;
-  S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0};
-  renderAll(); applySettings(); saveToBin();
-}
+function clearAll(){ if(!confirm('Clear all data?')) return; S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0}; renderAll(); applySettings(); saveToBin(); }
 
 function renderPlanner(){
   const {key,start,end}=getWeek(S.weekOffset);
@@ -436,46 +549,48 @@ function renderPlanner(){
   const mpw=S.settings.mealsPerWeek||5;
   const slots=document.getElementById('planner-slots');
   const empty=document.getElementById('planner-empty');
+  const genBtn=document.getElementById('mobile-generate-btn');
   const hasMeals=Object.keys(week).length>0;
   empty.style.display=hasMeals?'none':'';
+  if(genBtn) genBtn.style.display=isMobile()?'block':'none';
   slots.innerHTML=hasMeals?DAYS.slice(0,mpw).map(day=>{
     const meal=week[day];
     const r=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
     if(!r) return `<div class="meal-slot empty-slot"><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>`;
     return `<div class="meal-slot"><div class="row-between">
-      <div>
+      <div style="min-width:0;flex:1">
         <div class="day-label">${day}</div>
         <div class="meal-name">${r.name}</div>
-        <div class="meal-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
+        <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
       </div>
-      <div class="row-gap">
-        <button class="btn btn-sm btn-danger" onclick="removeMeal('${key}','${day}')">✕</button>
-      </div>
+      <button class="btn btn-sm btn-danger" style="flex-shrink:0;margin-left:8px" onclick="removeMeal('${key}','${day}')">✕</button>
     </div></div>`;
   }).join(''):'';
 }
 
 function renderRecipes(){
   const el=document.getElementById('recipe-list');
+  const urlBtn=document.getElementById('mobile-url-btn');
+  if(urlBtn) urlBtn.style.display=isMobile()?'block':'none';
   if(!S.recipes.length){
-    el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.<br>Add one manually or from a URL.</p></div>';
+    el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.</p></div>';
     return;
   }
   el.innerHTML=S.recipes.map(r=>`<div class="recipe-card"><div class="row-between">
-    <div class="recipe-card-title">${r.name}</div>
-    <div class="row-gap">
+    <div class="recipe-card-title" style="min-width:0;flex:1;margin-right:8px">${r.name}</div>
+    <div class="row-gap" style="flex-shrink:0">
       <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">Delete</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">✕</button>
     </div></div>
-    <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''} ${r.tags&&r.tags.length?'· '+r.tags.join(', '):''}</div>
-    ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,5).map(i=>i.name).join(', ')+(r.ingredients.length>5?'…':'')+'</div>':''}
+    <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
+    ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,4).map(i=>i.name).join(', ')+(r.ingredients.length>4?'…':'')+'</div>':''}
   </div>`).join('');
 }
 
 function renderPantry(){
   const el=document.getElementById('pantry-list');
   if(!S.pantry.length){
-    el.innerHTML='<div class="empty-state" style="padding:2rem"><p>No pantry items yet.<br>Add staples like olive oil, soy sauce, tinned tomatoes.</p></div>';
+    el.innerHTML='<div class="empty-state" style="padding:2rem"><p>No pantry items yet.</p></div>';
     return;
   }
   el.innerHTML=S.pantry.map(item=>{
@@ -488,9 +603,9 @@ function renderPantry(){
       <div class="pantry-unit">${item.unit}</div>
       <div class="pantry-bar-wrap">
         <div class="pantry-bar"><div class="pantry-bar-fill" style="width:${pct}%;background:${col}"></div></div>
-        <div class="pantry-pct">${pct}% remaining</div>
+        <div class="pantry-pct">${pct}%</div>
       </div>
-      <span class="badge ${b}" style="${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'reorder'}</span>
+      <span class="badge ${b}" style="flex-shrink:0;${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'!'}</span>
       <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')">✕</button>
     </div>`;
   }).join('');
@@ -507,9 +622,8 @@ function renderShopping(){
     r.ingredients.forEach(ing=>{
       const pi=S.pantry.find(p=>p.name.toLowerCase()===ing.name.toLowerCase());
       let buyQty=0, buyUnit=ing.unit;
-      if(pi){
-        if(pi.currentQty<pi.totalQty*0.15||pi.currentQty<ing.qty){ buyQty=pi.totalQty; buyUnit=pi.unit; }
-      } else { buyQty=ing.qty; buyUnit=ing.unit; }
+      if(pi){ if(pi.currentQty<pi.totalQty*0.15||pi.currentQty<ing.qty){ buyQty=pi.totalQty; buyUnit=pi.unit; } }
+      else { buyQty=ing.qty; buyUnit=ing.unit; }
       if(buyQty>0){
         const k=ing.name.toLowerCase();
         if(needed[k]) needed[k].qty+=buyQty;
@@ -534,23 +648,23 @@ function renderShopping(){
 function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderShopping(); }
 
 async function generatePlan(){
-  if(S.recipes.length<2){ alert('Add at least 2 recipes before generating a plan.'); return; }
+  if(S.recipes.length<2){ alert('Add at least 2 recipes first.'); return; }
   const st=document.getElementById('status-planner');
   st.style.display='flex';
-  document.getElementById('status-planner-txt').textContent='Claude is choosing your meals...';
   const {key}=getWeek(S.weekOffset);
   const mpw=S.settings.mealsPerWeek||5;
   const recent=[];
   for(let i=1;i<=(S.settings.avoidWeeks||2);i++){
     const wk=getWeek(S.weekOffset-i);
     Object.values(S.weeks[wk.key]||{}).forEach(m=>{
-      const r=S.recipes.find(r=>r.id===m.recipeId);
-      if(r) recent.push(r.name);
+      const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recent.push(r.name);
     });
   }
-  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners for the week. Vary proteins and cooking methods. Balance PCOS nutrition goals.\n\nReturn ONLY a JSON array, no markdown, no explanation:\n[{"day":"Monday","recipeId":"..."},{"day":"Tuesday","recipeId":"..."},...]`;
+  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Vary proteins and cooking methods. Balance PCOS nutrition.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
   try {
-    const data=await callAI({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]});
+    const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
+    const data=await res.json();
     const txt=data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
     const plan=JSON.parse(txt);
     S.weeks[key]={};
@@ -558,8 +672,7 @@ async function generatePlan(){
     deductPantry(key);
     st.style.display='none';
     renderPlanner(); renderPantry(); renderShopping();
-    scheduleSave();
-    toast('Meal plan generated ✓');
+    scheduleSave(); toast('Meal plan generated ✓');
   } catch(e){ st.style.display='none'; alert('Error: '+e.message); }
 }
 
@@ -574,10 +687,7 @@ function deductPantry(weekKey){
   });
 }
 
-function removeMeal(wk,day){
-  if(S.weeks[wk]) delete S.weeks[wk][day];
-  renderPlanner(); scheduleSave();
-}
+function removeMeal(wk,day){ if(S.weeks[wk]) delete S.weeks[wk][day]; renderPlanner(); scheduleSave(); }
 
 function openModal(type){
   const title=document.getElementById('modal-title');
@@ -586,55 +696,56 @@ function openModal(type){
   else if(type==='url'){ title.textContent='Add from URL'; body.innerHTML=urlFormHTML(); }
   else if(type==='pantry'){ title.textContent='Add pantry item'; body.innerHTML=pantryFormHTML(); }
   document.getElementById('modal-bg').classList.add('open');
+  setTimeout(()=>{ const first=document.querySelector('#modal-body input'); if(first) first.focus(); },300);
 }
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
 function recipeFormHTML(pf={}){
   return `<div class="field"><label>Recipe name</label><input type="text" id="r-name" value="${pf.name||''}" placeholder="e.g. Garlic prawn stir-fry"/></div>
   <div style="display:flex;gap:10px">
-    <div class="field" style="flex:1"><label>Protein per serving (g)</label><input type="number" id="r-protein" value="${pf.protein||''}" placeholder="35"/></div>
-    <div class="field" style="flex:2"><label>Tags (comma-separated)</label><input type="text" id="r-tags" value="${pf.tags?pf.tags.join(', '):''}" placeholder="quick, salmon, tray bake"/></div>
+    <div class="field" style="flex:1"><label>Protein (g)</label><input type="number" id="r-protein" value="${pf.protein||''}" placeholder="35"/></div>
+    <div class="field" style="flex:2"><label>Tags</label><input type="text" id="r-tags" value="${pf.tags?pf.tags.join(', '):''}" placeholder="quick, salmon"/></div>
   </div>
   <div class="field"><label>Ingredients</label>
     <div id="ing-list">${(pf.ingredients||[]).map(ingRowHTML).join('')||ingRowHTML()}</div>
-    <button class="btn btn-sm" style="margin-top:6px" onclick="document.getElementById('ing-list').insertAdjacentHTML('beforeend',ingRowHTML())">+ Add ingredient</button>
+    <button class="btn btn-sm" style="margin-top:8px;width:100%" onclick="document.getElementById('ing-list').insertAdjacentHTML('beforeend',ingRowHTML())">+ Add ingredient</button>
   </div>
   <div class="field"><label>Method (optional)</label><textarea id="r-method">${pf.method||''}</textarea></div>
-  <div class="row-gap" style="margin-top:1rem">
-    <button class="btn btn-primary" onclick="saveRecipe()">Save recipe</button>
-    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
+    <button class="btn btn-primary btn-full" onclick="saveRecipe()">Save recipe</button>
+    <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
   </div>`;
 }
 
 function ingRowHTML(ing={}){
   return `<div class="ing-row">
-    <input type="text" class="ing-name" value="${ing.name||''}" placeholder="Ingredient" style="flex:2"/>
-    <input type="number" class="ing-qty" value="${ing.qty||''}" placeholder="Qty" step="any" style="flex:1"/>
-    <input type="text" class="ing-unit" value="${ing.unit||''}" placeholder="Unit" style="flex:1"/>
-    <select class="ing-cat" style="flex:1.5">${CATS.map(c=>`<option${c===(ing.category||'Other')?' selected':''}>${c}</option>`).join('')}</select>
-    <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">✕</button>
+    <input type="text" class="ing-name" value="${ing.name||''}" placeholder="Ingredient" style="flex:2;min-width:80px"/>
+    <input type="number" class="ing-qty" value="${ing.qty||''}" placeholder="Qty" step="any" style="flex:1;min-width:50px"/>
+    <input type="text" class="ing-unit" value="${ing.unit||''}" placeholder="Unit" style="flex:1;min-width:50px"/>
+    <select class="ing-cat" style="flex:1.5;min-width:80px">${CATS.map(c=>`<option${c===(ing.category||'Other')?' selected':''}>${c}</option>`).join('')}</select>
+    <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()" style="flex-shrink:0">✕</button>
   </div>`;
 }
 
 function urlFormHTML(){
-  return `<div class="field"><label>Recipe URL</label><input type="url" id="url-in" placeholder="https://..."/></div>
-  <div id="url-status" class="status-bar" style="display:none"><div class="spinner"></div><span>Fetching and extracting recipe...</span></div>
-  <div class="row-gap" style="margin-top:1rem">
-    <button class="btn btn-terra" onclick="extractUrl()">Extract recipe</button>
-    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+  return `<div class="field"><label>Recipe URL</label><input type="url" id="url-in" placeholder="https://..." inputmode="url"/></div>
+  <div id="url-status" class="status-bar" style="display:none"><div class="spinner"></div><span>Extracting recipe...</span></div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
+    <button class="btn btn-terra btn-full" onclick="extractUrl()">Extract recipe</button>
+    <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
   </div>`;
 }
 
 function pantryFormHTML(){
   return `<div class="field"><label>Item name</label><input type="text" id="p-name" placeholder="e.g. Soy sauce"/></div>
   <div style="display:flex;gap:10px">
-    <div class="field" style="flex:1"><label>Purchase size</label><input type="number" id="p-total" placeholder="1000" step="any"/></div>
+    <div class="field" style="flex:1"><label>Purchase size</label><input type="number" id="p-total" placeholder="1000" step="any" inputmode="decimal"/></div>
     <div class="field" style="flex:1"><label>Unit</label><input type="text" id="p-unit" placeholder="ml, g, count"/></div>
   </div>
-  <div class="field"><label>Current stock (blank = brand new / full)</label><input type="number" id="p-cur" placeholder="Leave blank if new" step="any"/></div>
-  <div class="row-gap" style="margin-top:1rem">
-    <button class="btn btn-primary" onclick="savePantry()">Add to pantry</button>
-    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+  <div class="field"><label>Current stock (blank = full)</label><input type="number" id="p-cur" placeholder="Leave blank if new" step="any" inputmode="decimal"/></div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
+    <button class="btn btn-primary btn-full" onclick="savePantry()">Add to pantry</button>
+    <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
   </div>`;
 }
 
@@ -642,9 +753,11 @@ async function extractUrl(){
   const url=document.getElementById('url-in').value.trim();
   if(!url){ alert('Enter a URL.'); return; }
   document.getElementById('url-status').style.display='flex';
-  const prompt=`${PCOS}\n\nFetch and extract the recipe at this URL: ${url}\n\nReturn ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt the recipe to be gluten-free and pescatarian if needed.`;
+  const prompt=`${PCOS}\n\nFetch and extract the recipe at this URL: ${url}\n\nReturn ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt to be gluten-free and pescatarian if needed.`;
   try {
-    const data=await callAI({model:'claude-sonnet-4-6',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]});
+    const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
+    const data=await res.json();
     const txt=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
     const recipe=JSON.parse(txt);
     document.getElementById('url-status').style.display='none';
@@ -662,33 +775,21 @@ function saveRecipe(){
     unit:row.querySelector('.ing-unit').value.trim(),
     category:row.querySelector('.ing-cat').value
   })).filter(i=>i.name);
-  S.recipes.push({
-    id:uid('r'), name,
-    protein:parseInt(document.getElementById('r-protein').value)||null,
-    tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
-    method:document.getElementById('r-method').value.trim(),
-    ingredients:ings
-  });
+  S.recipes.push({ id:uid('r'), name, protein:parseInt(document.getElementById('r-protein').value)||null, tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean), method:document.getElementById('r-method').value.trim(), ingredients:ings });
   closeModal(); renderRecipes(); scheduleSave(); toast('Recipe saved ✓');
 }
 
-function deleteRecipe(id){
-  if(!confirm('Delete this recipe?')) return;
-  S.recipes=S.recipes.filter(r=>r.id!==id);
-  renderRecipes(); scheduleSave();
-}
+function deleteRecipe(id){ if(!confirm('Delete this recipe?')) return; S.recipes=S.recipes.filter(r=>r.id!==id); renderRecipes(); scheduleSave(); }
 
 function viewRecipe(id){
   const r=S.recipes.find(r=>r.id===id); if(!r) return;
   document.getElementById('modal-title').textContent=r.name;
-  const ings=r.ingredients&&r.ingredients.length
-    ?r.ingredients.map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty} ${i.unit}</span></div>`).join('')
-    :'<p style="color:var(--ink-light);font-size:14px">No ingredients listed.</p>';
+  const ings=r.ingredients&&r.ingredients.length ? r.ingredients.map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty} ${i.unit}</span></div>`).join('') : '<p style="color:var(--ink-light);font-size:14px">No ingredients listed.</p>';
   document.getElementById('modal-body').innerHTML=`
     <div style="margin-bottom:12px">${r.tags&&r.tags.length?r.tags.map(t=>`<span class="badge badge-muted" style="margin-right:4px">${t}</span>`).join(''):''}${r.protein?`<span class="badge badge-sage">~${r.protein}g protein</span>`:''}</div>
     <div class="section-label">Ingredients</div>${ings}
     ${r.method?`<div class="section-label" style="margin-top:1.25rem">Method</div><div style="font-size:14px;color:var(--ink-mid);line-height:1.75">${r.method}</div>`:''}
-    <div style="margin-top:1.25rem"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`;
+    <div style="margin-top:1.25rem"><button class="btn btn-ghost btn-full" onclick="closeModal()">Close</button></div>`;
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -697,16 +798,12 @@ function savePantry(){
   const total=parseFloat(document.getElementById('p-total').value);
   const unit=document.getElementById('p-unit').value.trim();
   const cur=parseFloat(document.getElementById('p-cur').value);
-  if(!name||isNaN(total)||!unit){ alert('Please fill in name, size, and unit.'); return; }
+  if(!name||isNaN(total)||!unit){ alert('Fill in name, size, and unit.'); return; }
   S.pantry.push({id:uid('p'),name,totalQty:total,unit,currentQty:isNaN(cur)?total:cur});
   closeModal(); renderPantry(); scheduleSave(); toast('Pantry item added ✓');
 }
 
-function deletePantry(id){
-  if(!confirm('Remove this item?')) return;
-  S.pantry=S.pantry.filter(p=>p.id!==id);
-  renderPantry(); scheduleSave();
-}
+function deletePantry(id){ if(!confirm('Remove?')) return; S.pantry=S.pantry.filter(p=>p.id!==id); renderPantry(); scheduleSave(); }
 
 function copyList(){
   const {key}=getWeek(S.weekOffset);
@@ -716,7 +813,7 @@ function copyList(){
     if(!r||!r.ingredients) return;
     r.ingredients.forEach(i=>{ if(!seen.has(i.name.toLowerCase())){ seen.add(i.name.toLowerCase()); lines.push(`${i.name} — ${i.qty} ${i.unit}`); } });
   });
-  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('Copied to clipboard ✓'));
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('Copied ✓'));
 }
 
 function markPurchased(){
@@ -724,9 +821,7 @@ function markPurchased(){
   renderPantry(); renderShopping(); scheduleSave(); toast('Pantry restocked ✓');
 }
 
-applySettings();
-renderAll();
-loadFromBin();
+applySettings(); renderAll(); loadFromBin();
 </script>
 </body>
 </html>
