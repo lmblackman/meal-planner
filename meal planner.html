@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meal Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F4EF;
+    --cream-dark: #EDE8DF;
+    --ink: #1C1C1A;
+    --ink-mid: #5A5750;
+    --ink-light: #9B9690;
+    --sage: #6B7B5E;
+    --sage-light: #E8EDE3;
+    --terracotta: #C4704A;
+    --terracotta-light: #F5E8E0;
+    --border: rgba(28,28,26,0.12);
+    --border-strong: rgba(28,28,26,0.22);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* Layout */
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; flex-shrink: 0; background: var(--ink); padding: 2rem 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; }
+  .main { margin-left: 220px; flex: 1; padding: 2.5rem 2.5rem 4rem; max-width: 860px; }
+
+  .sidebar-logo { padding: 0 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem; }
+  .sidebar-logo .wordmark { font-family: 'Lora', serif; font-size: 18px; color: #fff; letter-spacing: 0.01em; }
+  .sidebar-logo .sub { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 1.5rem; font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; }
+  .nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+  .nav-item.active { color: #fff; border-left-color: var(--terracotta); background: rgba(255,255,255,0.06); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .drive-status { margin-top: auto; padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); }
+  .drive-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 7px; }
+  .drive-dot.ok { background: #7dba5a; }
+  .drive-dot.error { background: #e06060; }
+  .drive-dot.syncing { background: #e0a850; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.35} }
+  .drive-label { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .drive-label strong { color: rgba(255,255,255,0.7); display: block; font-weight: 400; }
+
+  /* Tabs */
+  .tab { display: none; } .tab.active { display: block; }
+
+  /* Page header */
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-family: 'Lora', serif; font-size: 28px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
+  .page-header p { font-size: 14px; color: var(--ink-mid); }
+
+  /* Cards */
+  .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px; }
+  .card-muted { background: var(--cream-dark); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px; }
+
+  /* Buttons */
+  .btn { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: #fff; color: var(--ink); cursor: pointer; transition: all 0.15s; font-weight: 400; }
+  .btn:hover { background: var(--cream-dark); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--ink); color: #fff; border-color: transparent; }
+  .btn-primary:hover { background: #333; }
+  .btn-terra { background: var(--terracotta); color: #fff; border-color: transparent; }
+  .btn-terra:hover { background: #b3623e; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 8px; }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--ink-mid); }
+  .btn-ghost:hover { background: var(--cream-dark); color: var(--ink); }
+  .btn-danger { color: #b83030; border-color: rgba(184,48,48,0.2); }
+  .btn-danger:hover { background: #fdf0f0; }
+
+  /* Forms */
+  .field { margin-bottom: 14px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--ink-mid); display: block; margin-bottom: 5px; letter-spacing: 0.03em; text-transform: uppercase; }
+  input[type=text], input[type=url], input[type=number], input[type=password], select, textarea {
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+    background: #fff; border: 1px solid var(--border-strong); border-radius: var(--radius);
+    padding: 8px 12px; width: 100%; transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--terracotta); }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row-between { display: flex; justify-content: space-between; align-items: center; }
+  .row-gap { display: flex; gap: 10px; }
+
+  /* Badges */
+  .badge { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
+  .badge-sage { background: var(--sage-light); color: var(--sage); }
+  .badge-terra { background: var(--terracotta-light); color: var(--terracotta); }
+  .badge-muted { background: var(--cream-dark); color: var(--ink-mid); }
+
+  /* Status bar */
+  .status-bar { font-size: 13px; color: var(--ink-mid); padding: 10px 14px; background: var(--cream-dark); border-radius: var(--radius); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
+  .spinner { width: 14px; height: 14px; border: 2px solid var(--border-strong); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Planner */
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+  .week-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 400; }
+  .week-sub { font-size: 13px; color: var(--ink-light); }
+
+  .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 8px; transition: border-color 0.15s; }
+  .meal-slot:hover { border-color: var(--border-strong); }
+  .meal-slot .day-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; }
+  .meal-slot .meal-name { font-family: 'Lora', serif; font-size: 17px; font-weight: 400; }
+  .meal-slot .meal-meta { font-size: 12px; color: var(--ink-mid); margin-top: 3px; }
+  .meal-slot.empty-slot { border-style: dashed; background: transparent; }
+  .meal-slot.empty-slot .meal-name { color: var(--ink-light); font-family: 'DM Sans', sans-serif; font-size: 14px; font-style: italic; }
+
+  /* Recipe cards */
+  .recipe-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 8px; }
+  .recipe-card-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 400; margin-bottom: 4px; }
+  .recipe-card-meta { font-size: 12px; color: var(--ink-mid); }
+  .recipe-card-ings { font-size: 12px; color: var(--ink-light); margin-top: 5px; }
+
+  /* Pantry */
+  .pantry-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .pantry-row:last-child { border-bottom: none; }
+  .pantry-name { flex: 2; font-size: 14px; }
+  .pantry-qty { flex: 1; font-size: 14px; font-weight: 500; }
+  .pantry-unit { flex: 0 0 40px; font-size: 13px; color: var(--ink-light); }
+  .pantry-bar-wrap { flex: 2; }
+  .pantry-bar { height: 3px; background: var(--cream-dark); border-radius: 99px; overflow: hidden; }
+  .pantry-bar-fill { height: 100%; border-radius: 99px; }
+  .pantry-pct { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
+
+  /* Shopping */
+  .shop-cat { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin: 1.25rem 0 6px; }
+  .shop-cat:first-child { margin-top: 0; }
+  .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .shop-row:last-child { border-bottom: none; }
+  .shop-qty { font-size: 13px; color: var(--ink-mid); }
+
+  /* Ingredient row in form */
+  .ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .ing-row input, .ing-row select { padding: 6px 10px; font-size: 13px; }
+
+  /* Modal */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(28,28,26,0.5); z-index: 500; padding: 2rem; overflow-y: auto; backdrop-filter: blur(2px); }
+  .modal-bg.open { display: flex; align-items: flex-start; justify-content: center; }
+  .modal { background: #fff; border-radius: var(--radius-lg); padding: 1.75rem; width: 100%; max-width: 560px; border: 1px solid var(--border); }
+  .modal-title { font-family: 'Lora', serif; font-size: 20px; font-weight: 400; margin-bottom: 1.25rem; }
+
+  /* API key screen */
+  .key-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--cream); }
+  .key-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 440px; width: 100%; text-align: center; }
+  .key-box h1 { font-family: 'Lora', serif; font-size: 26px; font-weight: 400; margin-bottom: 8px; }
+  .key-box p { font-size: 14px; color: var(--ink-mid); margin-bottom: 1.5rem; line-height: 1.7; }
+  .key-box input { text-align: left; margin-bottom: 10px; font-family: monospace; font-size: 13px; }
+
+  .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+  .section-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; margin-top: 1.25rem; }
+  .section-label:first-child { margin-top: 0; }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--ink-light); }
+  .empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.3; }
+  .empty-state p { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- API Key screen -->
+<div class="key-screen" id="key-screen">
+  <div class="key-box">
+    <h1>Meal Planner</h1>
+    <p>Enter your Anthropic API key to get started. It's stored locally in your browser and never sent anywhere except Anthropic's API.</p>
+    <div class="field">
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="saveApiKey()">Get started</button>
+    <p style="font-size:12px;color:var(--ink-light);margin-top:12px">Get your key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--terracotta)">console.anthropic.com</a></p>
+  </div>
+</div>
+
+<!-- Main app -->
+<div class="shell" id="main-app" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Meal Planner</div>
+      <div class="sub">For Laurie & Sylvie</div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="showTab('planner',this)" data-tab="planner">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Planner
+      </div>
+      <div class="nav-item" onclick="showTab('recipes',this)" data-tab="recipes">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        Recipes
+      </div>
+      <div class="nav-item" onclick="showTab('pantry',this)" data-tab="pantry">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Pantry
+      </div>
+      <div class="nav-item" onclick="showTab('shopping',this)" data-tab="shopping">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        Shopping
+      </div>
+      <div class="nav-item" onclick="showTab('settings',this)" data-tab="settings">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </nav>
+    <div class="drive-status">
+      <div style="display:flex;align-items:center;margin-bottom:3px">
+        <span class="drive-dot syncing" id="drive-dot"></span>
+        <span class="drive-label"><strong id="drive-label-main">Connecting...</strong><span id="drive-label-sub"></span></span>
+      </div>
+      <button class="btn btn-sm btn-ghost" style="margin-top:6px;width:100%;color:rgba(255,255,255,0.4);font-size:11px" onclick="syncDrive()">↻ Sync Drive</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- PLANNER -->
+    <div id="tab-planner" class="tab active">
+      <div class="page-header">
+        <div class="row-between">
+          <div>
+            <div class="week-nav row" style="gap:10px;margin-bottom:4px">
+              <button class="btn btn-sm btn-ghost" onclick="changeWeek(-1)">←</button>
+              <h1 class="week-title" id="week-title">This week</h1>
+              <button class="btn btn-sm btn-ghost" onclick="changeWeek(1)">→</button>
+            </div>
+            <p class="week-sub" id="week-sub"></p>
+          </div>
+          <button class="btn btn-terra" onclick="generatePlan()">✦ Generate plan</button>
+        </div>
+      </div>
+      <div id="status-planner" style="display:none" class="status-bar"><div class="spinner"></div><span id="status-planner-txt">Generating your meal plan...</span></div>
+      <div id="planner-slots"></div>
+      <div id="planner-empty" class="empty-state">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+        <p>No meals planned yet.<br>Add some recipes, then hit Generate plan.</p>
+      </div>
+    </div>
+
+    <!-- RECIPES -->
+    <div id="tab-recipes" class="tab">
+      <div class="page-header">
+        <div class="row-between">
+          <h1>Recipe bank</h1>
+          <div class="row-gap">
+            <button class="btn btn-sm" onclick="openModal('url')">+ From URL</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('manual')">+ Add recipe</button>
+          </div>
+        </div>
+      </div>
+      <div id="recipe-list"></div>
+    </div>
+
+    <!-- PANTRY -->
+    <div id="tab-pantry" class="tab">
+      <div class="page-header">
+        <div class="row-between">
+          <h1>Pantry</h1>
+          <button class="btn btn-primary btn-sm" onclick="openModal('pantry')">+ Add item</button>
+        </div>
+        <p>The planner tracks how much each recipe uses and deducts it from your stock. Items are added to your shopping list when stock falls below 15%.</p>
+      </div>
+      <div class="card" style="padding:0 1.5rem">
+        <div id="pantry-list"></div>
+      </div>
+    </div>
+
+    <!-- SHOPPING -->
+    <div id="tab-shopping" class="tab">
+      <div class="page-header">
+        <div class="row-between">
+          <h1>Shopping list</h1>
+          <div class="row-gap">
+            <button class="btn btn-sm" onclick="copyList()">Copy list</button>
+            <button class="btn btn-primary btn-sm" onclick="markPurchased()">✓ Mark purchased</button>
+          </div>
+        </div>
+        <p>Based on this week's plan. Only items with low stock appear here.</p>
+      </div>
+      <div id="shopping-wrap"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="tab">
+      <div class="page-header"><h1>Settings</h1></div>
+      <div class="card">
+        <div class="section-label">Meal planning</div>
+        <div class="field">
+          <label>Dinners per week</label>
+          <select id="set-meals" onchange="saveSetting('mealsPerWeek',+this.value)">
+            <option value="3">3 dinners</option>
+            <option value="4">4 dinners</option>
+            <option value="5">5 dinners</option>
+            <option value="6">6 dinners</option>
+            <option value="7">7 dinners</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Avoid repeating meals from last</label>
+          <select id="set-avoid" onchange="saveSetting('avoidWeeks',+this.value)">
+            <option value="1">1 week</option>
+            <option value="2">2 weeks</option>
+            <option value="3">3 weeks</option>
+          </select>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Dietary profile</div>
+        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:10px;line-height:1.7">
+          <span class="badge badge-sage" style="margin-right:4px">Pescatarian</span>
+          <span class="badge badge-sage" style="margin-right:4px">Gluten-free</span>
+          <span class="badge badge-terra" style="margin-right:4px">PCOS-friendly</span>
+          <span class="badge badge-muted">High protein</span>
+          <div style="margin-top:10px">Baked into all AI-generated plans. Meals are optimised for insulin sensitivity, anti-inflammation, and 110–140g protein/day.</div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">API key</div>
+        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:10px">Your key is stored in <code>localStorage</code> and used only to call Anthropic's API.</div>
+        <div class="row-gap">
+          <button class="btn btn-sm" onclick="changeApiKey()">Change key</button>
+          <button class="btn btn-sm" onclick="syncDrive()">Sync Drive now</button>
+          <button class="btn btn-sm btn-danger" onclick="clearAll()">Clear all data</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="row-between" style="margin-bottom:1.25rem">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="btn btn-sm btn-ghost" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const PCOS = `You are a meal planning assistant for Laurie and Sylvie, a couple in London.
+Rules — strictly follow all of these:
+- Pescatarian: fish and seafood only, absolutely no meat or poultry
+- Strictly gluten-free: no wheat, barley, rye, or anything containing gluten
+- PCOS & insulin resistance management: high protein 110-140g/day target, anti-inflammatory ingredients, low glycaemic index
+- Mediterranean-leaning cooking style, oven-friendly (they have an Aga)
+- Household is gluten-free and pescatarian — no exceptions
+Best proteins: salmon, tuna, cod, sardines, prawns, sea bass, smoked mackerel, eggs, Greek yogurt, cottage cheese
+Best carbs: sweet potato, quinoa, lentils, brown rice, beans, chickpeas, gluten-free oats
+Best fats: olive oil, chia seeds, walnuts, avocado, flaxseed
+Anti-inflammatory additions to favour: turmeric, ginger, garlic, cinnamon, berries, leafy greens
+Avoid: gluten in any form, meat, sugary drinks, white rice/bread in large portions, processed foods`;
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const CATS = ['Fish & seafood','Produce','Dairy & eggs','Grains & pulses','Pantry','Frozen','Other'];
+
+let S = {
+  recipes: [],
+  pantry: [],
+  weeks: {},
+  settings: { mealsPerWeek: 5, avoidWeeks: 2 },
+  weekOffset: 0
+};
+
+function uid(p){ return p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
+function getApiKey(){ return localStorage.getItem('mp_apikey')||''; }
+
+function getWeek(offset){
+  const d = new Date();
+  d.setDate(d.getDate() - d.getDay() + 1 + offset*7);
+  const s = new Date(d), e = new Date(d);
+  e.setDate(e.getDate()+6);
+  return { key: s.toISOString().slice(0,10), start: s, end: e };
+}
+function fmt(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+
+function saveApiKey(){
+  const k = document.getElementById('api-key-input').value.trim();
+  if(!k.startsWith('sk-ant')){ alert('That doesn\'t look like an Anthropic API key (should start with sk-ant-).'); return; }
+  localStorage.setItem('mp_apikey', k);
+  document.getElementById('key-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  init();
+}
+function changeApiKey(){
+  const k = prompt('Enter new Anthropic API key:');
+  if(k){ localStorage.setItem('mp_apikey', k); alert('Key saved.'); }
+}
+
+function showTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  el.classList.add('active');
+  const r = { planner:renderPlanner, recipes:renderRecipes, pantry:renderPantry, shopping:renderShopping };
+  r[name] && r[name]();
+}
+
+function changeWeek(d){ S.weekOffset += d; renderPlanner(); }
+
+function setDrive(state, sub){
+  const dot = document.getElementById('drive-dot');
+  const lbl = document.getElementById('drive-label-main');
+  const sub_ = document.getElementById('drive-label-sub');
+  dot.className = 'drive-dot ' + (state==='ok'?'ok':state==='error'?'error':'syncing');
+  lbl.textContent = state==='ok'?'Drive synced':state==='error'?'Sync failed':'Syncing...';
+  sub_.textContent = sub ? ' · '+sub : '';
+}
+
+async function callClaude(messages, opts={}){
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: opts.maxTokens||2000,
+    messages,
+    ...(opts.tools ? {tools: opts.tools} : {}),
+    ...(opts.mcp ? {mcp_servers:[{type:'url',url:'https://drivemcp.googleapis.com/mcp/v1',name:'gdrive'}]} : {})
+  };
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'x-api-key': getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-beta':'mcp-client-2025-04-04' },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||'API error '+r.status); }
+  return r.json();
+}
+
+function extractText(data){
+  return data.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
+}
+
+async function loadFromDrive(){
+  setDrive('syncing','');
+  try {
+    const data = await callClaude([{role:'user',content:'Search my Google Drive for a file named exactly "meal-planner-data.json". If it exists, return its complete raw text content and nothing else. If it does not exist, return only the text: NOTFOUND'}], {mcp:true, maxTokens:8000});
+    const text = extractText(data);
+    if(text && text !== 'NOTFOUND' && text.includes('"recipes"')){
+      try {
+        const j = JSON.parse(text);
+        if(j.recipes) S.recipes = j.recipes;
+        if(j.pantry) S.pantry = j.pantry;
+        if(j.weeks) S.weeks = j.weeks;
+        if(j.settings) S.settings = {...S.settings,...j.settings};
+        applySettings();
+      } catch(e){ console.warn('Parse error', e); }
+    }
+    setDrive('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
+    renderAll();
+  } catch(e){
+    setDrive('error', e.message.slice(0,40));
+    console.error(e);
+  }
+}
+
+async function saveToDrive(){
+  setDrive('syncing','');
+  try {
+    const payload = JSON.stringify({recipes:S.recipes,pantry:S.pantry,weeks:S.weeks,settings:S.settings},null,2);
+    await callClaude([{role:'user',content:`Save the following as a file named "meal-planner-data.json" in my Google Drive. If the file already exists, overwrite it completely with this content. Reply only with "done".\n\n${payload}`}], {mcp:true, maxTokens:200});
+    saveLocal();
+    setDrive('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
+  } catch(e){
+    setDrive('error', e.message.slice(0,40));
+    saveLocal();
+  }
+}
+
+function saveLocal(){ localStorage.setItem('mp_data', JSON.stringify({recipes:S.recipes,pantry:S.pantry,weeks:S.weeks,settings:S.settings})); }
+
+function loadLocal(){
+  const d = localStorage.getItem('mp_data');
+  if(d){ try { const j=JSON.parse(d); Object.assign(S,j); applySettings(); } catch(e){} }
+}
+
+function syncDrive(){ saveToDrive(); }
+
+function clearAll(){
+  if(!confirm('Clear all local data? This cannot be undone.')) return;
+  localStorage.removeItem('mp_data');
+  S = {recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0};
+  renderAll(); applySettings();
+}
+
+function applySettings(){
+  const ms=document.getElementById('set-meals');
+  const aw=document.getElementById('set-avoid');
+  if(ms) ms.value=S.settings.mealsPerWeek||5;
+  if(aw) aw.value=S.settings.avoidWeeks||2;
+}
+function saveSetting(k,v){ S.settings[k]=v; saveToDrive(); }
+
+function renderPlanner(){
+  const {key,start,end}=getWeek(S.weekOffset);
+  const lbl=S.weekOffset===0?'This week':S.weekOffset===-1?'Last week':S.weekOffset===1?'Next week':fmt(start)+' week';
+  document.getElementById('week-title').textContent=lbl;
+  document.getElementById('week-sub').textContent=fmt(start)+' – '+fmt(end);
+  const week=S.weeks[key]||{};
+  const mpw=S.settings.mealsPerWeek||5;
+  const slots=document.getElementById('planner-slots');
+  const empty=document.getElementById('planner-empty');
+  const hasMeals=Object.keys(week).length>0;
+  empty.style.display=hasMeals?'none':'';
+  slots.innerHTML=hasMeals?DAYS.slice(0,mpw).map(day=>{
+    const meal=week[day];
+    const r=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
+    if(!r) return `<div class="meal-slot empty-slot"><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>`;
+    return `<div class="meal-slot"><div class="row-between">
+      <div>
+        <div class="day-label">${day}</div>
+        <div class="meal-name">${r.name}</div>
+        <div class="meal-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
+      </div>
+      <div class="row-gap">
+        <button class="btn btn-sm btn-danger" onclick="removeMeal('${key}','${day}')">✕</button>
+      </div>
+    </div></div>`;
+  }).join(''):'';
+}
+
+function renderRecipes(){
+  const el=document.getElementById('recipe-list');
+  if(!S.recipes.length){
+    el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.<br>Add one manually or paste a recipe URL.</p></div>';
+    return;
+  }
+  el.innerHTML=S.recipes.map(r=>`<div class="recipe-card"><div class="row-between">
+    <div class="recipe-card-title">${r.name}</div>
+    <div class="row-gap">
+      <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">Delete</button>
+    </div></div>
+    <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''} ${r.tags&&r.tags.length?'· '+r.tags.join(', '):''}</div>
+    ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,5).map(i=>i.name).join(', ')+(r.ingredients.length>5?'…':'')+'</div>':''}
+  </div>`).join('');
+}
+
+function renderPantry(){
+  const el=document.getElementById('pantry-list');
+  if(!S.pantry.length){
+    el.innerHTML='<div class="empty-state" style="padding:2rem"><p>No pantry items yet. Add staples like olive oil, soy sauce, spices.</p></div>';
+    return;
+  }
+  el.innerHTML=S.pantry.map(item=>{
+    const pct=Math.min(100,Math.round((item.currentQty/item.totalQty)*100));
+    const col=pct>40?'#6B7B5E':pct>15?'#C4A040':'#C4704A';
+    const b=pct>40?'badge-sage':pct>15?'badge-terra':'';
+    const bLabel=pct>40?'ok':pct>15?'low':'reorder';
+    return `<div class="pantry-row">
+      <div class="pantry-name">${item.name}</div>
+      <div class="pantry-qty">${item.unit==='g'||item.unit==='ml'?Math.round(item.currentQty):item.currentQty.toFixed(1)}</div>
+      <div class="pantry-unit">${item.unit}</div>
+      <div class="pantry-bar-wrap">
+        <div class="pantry-bar"><div class="pantry-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="pantry-pct">${pct}%</div>
+      </div>
+      <span class="badge ${b}" style="${!b?'background:#fdf0f0;color:#b83030':''}">${bLabel}</span>
+      <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderShopping(){
+  const el=document.getElementById('shopping-wrap');
+  const {key}=getWeek(S.weekOffset);
+  const week=S.weeks[key]||{};
+  const needed={};
+  Object.values(week).forEach(meal=>{
+    const r=S.recipes.find(r=>r.id===meal.recipeId);
+    if(!r||!r.ingredients) return;
+    r.ingredients.forEach(ing=>{
+      const pi=S.pantry.find(p=>p.name.toLowerCase()===ing.name.toLowerCase());
+      let buyQty=0, buyUnit=ing.unit;
+      if(pi){
+        const threshold=pi.totalQty*0.15;
+        if(pi.currentQty<threshold||pi.currentQty<ing.qty){ buyQty=pi.totalQty; buyUnit=pi.unit; }
+      } else { buyQty=ing.qty; buyUnit=ing.unit; }
+      if(buyQty>0){
+        const k=ing.name.toLowerCase();
+        if(needed[k]) needed[k].qty+=buyQty;
+        else needed[k]={name:ing.name,qty:buyQty,unit:buyUnit,cat:ing.category||'Other'};
+      }
+    });
+  });
+  const items=Object.values(needed);
+  if(!items.length){
+    el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><p>No shopping needed yet.<br>Generate a plan first.</p></div>';
+    return;
+  }
+  const byCat={};
+  items.forEach(i=>{ if(!byCat[i.cat]) byCat[i.cat]=[]; byCat[i.cat].push(i); });
+  const order=[...CATS.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!CATS.includes(c))];
+  el.innerHTML='<div class="card">'+order.map(cat=>`
+    <div class="shop-cat">${cat}</div>
+    ${byCat[cat].map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty%1===0?i.qty:i.qty.toFixed(1)} ${i.unit}</span></div>`).join('')}
+  `).join('')+'</div>';
+}
+
+function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderShopping(); }
+
+async function generatePlan(){
+  if(S.recipes.length<2){ alert('Add at least 2 recipes before generating a plan.'); return; }
+  const st=document.getElementById('status-planner');
+  const stxt=document.getElementById('status-planner-txt');
+  st.style.display='flex'; stxt.textContent='Claude is choosing your meals...';
+  const {key}=getWeek(S.weekOffset);
+  const mpw=S.settings.mealsPerWeek||5;
+  const recent=[];
+  for(let i=1;i<=(S.settings.avoidWeeks||2);i++){
+    const wk=getWeek(S.weekOffset-i);
+    Object.values(S.weeks[wk.key]||{}).forEach(m=>{
+      const r=S.recipes.find(r=>r.id===m.recipeId);
+      if(r) recent.push(r.name);
+    });
+  }
+  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Vary proteins and cooking methods. Balance PCOS nutrition goals across the week.\n\nReturn ONLY a JSON array with no markdown, no explanation:\n[{"day":"Monday","recipeId":"..."},{"day":"Tuesday","recipeId":"..."},...]`;
+  try {
+    const data=await callClaude([{role:'user',content:prompt}],{maxTokens:600});
+    const txt=extractText(data);
+    const plan=JSON.parse(txt);
+    S.weeks[key]={};
+    plan.forEach(item=>{ if(item.day&&item.recipeId) S.weeks[key][item.day]={recipeId:item.recipeId}; });
+    deductPantry(key);
+    st.style.display='none';
+    renderPlanner(); renderPantry(); renderShopping();
+    saveToDrive();
+  } catch(e){ st.style.display='none'; alert('Error generating plan: '+e.message); }
+}
+
+function deductPantry(weekKey){
+  const week=S.weeks[weekKey]||{};
+  Object.values(week).forEach(meal=>{
+    const r=S.recipes.find(r=>r.id===meal.recipeId);
+    if(!r||!r.ingredients) return;
+    r.ingredients.forEach(ing=>{
+      const pi=S.pantry.find(p=>p.name.toLowerCase()===ing.name.toLowerCase());
+      if(pi) pi.currentQty=Math.max(0,pi.currentQty-ing.qty);
+    });
+  });
+}
+
+function removeMeal(wk,day){
+  if(S.weeks[wk]) delete S.weeks[wk][day];
+  renderPlanner(); saveToDrive();
+}
+
+function openModal(type){
+  const bg=document.getElementById('modal-bg');
+  const title=document.getElementById('modal-title');
+  const body=document.getElementById('modal-body');
+  if(type==='manual'){ title.textContent='Add recipe'; body.innerHTML=recipeFormHTML(); }
+  else if(type==='url'){ title.textContent='Add from URL'; body.innerHTML=urlFormHTML(); }
+  else if(type==='pantry'){ title.textContent='Add pantry item'; body.innerHTML=pantryFormHTML(); }
+  bg.classList.add('open');
+}
+function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
+
+function recipeFormHTML(pf={}){
+  return `
+    <div class="field"><label>Recipe name</label><input type="text" id="r-name" value="${pf.name||''}" placeholder="e.g. Garlic prawn stir-fry"/></div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1"><label>Protein per serving (g)</label><input type="number" id="r-protein" value="${pf.protein||''}" placeholder="e.g. 35"/></div>
+      <div class="field" style="flex:2"><label>Tags (comma-separated)</label><input type="text" id="r-tags" value="${pf.tags?pf.tags.join(', '):''}" placeholder="quick, salmon, tray bake"/></div>
+    </div>
+    <div class="field">
+      <label>Ingredients</label>
+      <div id="ing-list">${(pf.ingredients||[]).map(ingRowHTML).join('')||ingRowHTML()}</div>
+      <button class="btn btn-sm" style="margin-top:6px" type="button" onclick="document.getElementById('ing-list').insertAdjacentHTML('beforeend',ingRowHTML())">+ Add ingredient</button>
+    </div>
+    <div class="field"><label>Method (optional)</label><textarea id="r-method">${pf.method||''}</textarea></div>
+    <div class="row-gap" style="margin-top:1rem">
+      <button class="btn btn-primary" onclick="saveRecipe()">Save recipe</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+}
+
+function ingRowHTML(ing={}){
+  return `<div class="ing-row">
+    <input type="text" class="ing-name" value="${ing.name||''}" placeholder="Ingredient" style="flex:2"/>
+    <input type="number" class="ing-qty" value="${ing.qty||''}" placeholder="Qty" step="any" style="flex:1"/>
+    <input type="text" class="ing-unit" value="${ing.unit||''}" placeholder="Unit" style="flex:1"/>
+    <select class="ing-cat" style="flex:1.5">${CATS.map(c=>`<option${c===(ing.category||'Other')?' selected':''}>${c}</option>`).join('')}</select>
+    <button class="btn btn-sm btn-danger" type="button" onclick="this.parentElement.remove()">✕</button>
+  </div>`;
+}
+
+function urlFormHTML(){
+  return `<div class="field"><label>Recipe URL</label><input type="url" id="url-in" placeholder="https://..."/></div>
+    <div id="url-status" class="status-bar" style="display:none"><div class="spinner"></div><span>Fetching and extracting recipe...</span></div>
+    <div class="row-gap" style="margin-top:1rem">
+      <button class="btn btn-terra" onclick="extractUrl()">Extract recipe</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+}
+
+function pantryFormHTML(){
+  return `<div class="field"><label>Item name</label><input type="text" id="p-name" placeholder="e.g. Soy sauce"/></div>
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1"><label>Purchase size</label><input type="number" id="p-total" placeholder="e.g. 1000" step="any"/></div>
+      <div class="field" style="flex:1"><label>Unit</label><input type="text" id="p-unit" placeholder="ml, g, count"/></div>
+    </div>
+    <div class="field"><label>Current stock (leave blank if brand new)</label><input type="number" id="p-cur" placeholder="Defaults to full if blank" step="any"/></div>
+    <div class="row-gap" style="margin-top:1rem">
+      <button class="btn btn-primary" onclick="savePantry()">Add to pantry</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+}
+
+async function extractUrl(){
+  const url=document.getElementById('url-in').value.trim();
+  if(!url){ alert('Enter a URL.'); return; }
+  document.getElementById('url-status').style.display='flex';
+  const prompt=`${PCOS}\n\nFetch and read the recipe at this URL: ${url}\n\nExtract the recipe and return ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt the recipe to be gluten-free and pescatarian if needed.`;
+  try {
+    const data=await callClaude([{role:'user',content:prompt}],{tools:[{type:'web_search_20250305',name:'web_search'}],maxTokens:2000});
+    const txt=extractText(data);
+    const recipe=JSON.parse(txt);
+    document.getElementById('url-status').style.display='none';
+    document.getElementById('modal-title').textContent='Confirm recipe';
+    document.getElementById('modal-body').innerHTML=recipeFormHTML(recipe);
+  } catch(e){ document.getElementById('url-status').style.display='none'; alert('Could not extract: '+e.message); }
+}
+
+function saveRecipe(){
+  const name=document.getElementById('r-name').value.trim();
+  if(!name){ alert('Enter a recipe name.'); return; }
+  const ings=[...document.querySelectorAll('#ing-list .ing-row')].map(row=>({
+    name: row.querySelector('.ing-name').value.trim(),
+    qty: parseFloat(row.querySelector('.ing-qty').value)||0,
+    unit: row.querySelector('.ing-unit').value.trim(),
+    category: row.querySelector('.ing-cat').value
+  })).filter(i=>i.name);
+  S.recipes.push({
+    id:uid('r'), name,
+    protein: parseInt(document.getElementById('r-protein').value)||null,
+    tags: document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    method: document.getElementById('r-method').value.trim(),
+    ingredients: ings
+  });
+  closeModal(); renderRecipes(); saveToDrive();
+}
+
+function deleteRecipe(id){
+  if(!confirm('Delete this recipe?')) return;
+  S.recipes=S.recipes.filter(r=>r.id!==id);
+  renderRecipes(); saveToDrive();
+}
+
+function viewRecipe(id){
+  const r=S.recipes.find(r=>r.id===id); if(!r) return;
+  document.getElementById('modal-title').textContent=r.name;
+  const ings=r.ingredients&&r.ingredients.length
+    ?r.ingredients.map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty} ${i.unit}</span></div>`).join('')
+    :'<p style="color:var(--ink-light);font-size:14px">No ingredients listed.</p>';
+  document.getElementById('modal-body').innerHTML=`
+    <div style="margin-bottom:12px">${r.tags&&r.tags.length?r.tags.map(t=>`<span class="badge badge-muted" style="margin-right:4px">${t}</span>`).join(''):''}${r.protein?`<span class="badge badge-sage">~${r.protein}g protein</span>`:''}</div>
+    <div class="section-label">Ingredients</div>${ings}
+    ${r.method?`<div class="section-label" style="margin-top:1.25rem">Method</div><div style="font-size:14px;color:var(--ink-mid);line-height:1.75">${r.method}</div>`:''}
+    <div style="margin-top:1.25rem"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function savePantry(){
+  const name=document.getElementById('p-name').value.trim();
+  const total=parseFloat(document.getElementById('p-total').value);
+  const unit=document.getElementById('p-unit').value.trim();
+  const cur=parseFloat(document.getElementById('p-cur').value);
+  if(!name||isNaN(total)||!unit){ alert('Please fill in name, size, and unit.'); return; }
+  S.pantry.push({id:uid('p'),name,totalQty:total,unit,currentQty:isNaN(cur)?total:cur});
+  closeModal(); renderPantry(); saveToDrive();
+}
+
+function deletePantry(id){
+  if(!confirm('Remove this item?')) return;
+  S.pantry=S.pantry.filter(p=>p.id!==id);
+  renderPantry(); saveToDrive();
+}
+
+function copyList(){
+  const {key}=getWeek(S.weekOffset);
+  const week=S.weeks[key]||{};
+  const lines=[];
+  const seen=new Set();
+  Object.values(week).forEach(meal=>{
+    const r=S.recipes.find(r=>r.id===meal.recipeId);
+    if(!r||!r.ingredients) return;
+    r.ingredients.forEach(i=>{ if(!seen.has(i.name.toLowerCase())){ seen.add(i.name.toLowerCase()); lines.push(`${i.name} — ${i.qty} ${i.unit}`); } });
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Copied to clipboard!'));
+}
+
+function markPurchased(){
+  S.pantry.forEach(item=>{
+    if(item.currentQty < item.totalQty*0.15) item.currentQty=item.totalQty;
+  });
+  renderPantry(); renderShopping(); saveToDrive();
+}
+
+function init(){
+  loadLocal();
+  applySettings();
+  renderAll();
+  loadFromDrive();
+}
+
+// Boot
+if(getApiKey()){
+  document.getElementById('key-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  init();
+}
+</script>
+</body>
+</html>
