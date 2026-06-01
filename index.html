@@ -131,11 +131,6 @@
   .modal { background: #fff; border-radius: var(--radius-lg); padding: 1.75rem; width: 100%; max-width: 560px; border: 1px solid var(--border); }
   .modal-title { font-family: 'Lora', serif; font-size: 20px; font-weight: 400; margin-bottom: 1.25rem; }
 
-  .key-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--cream); }
-  .key-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 480px; width: 100%; }
-  .key-box h1 { font-family: 'Lora', serif; font-size: 26px; font-weight: 400; margin-bottom: 8px; }
-  .key-box p { font-size: 14px; color: var(--ink-mid); margin-bottom: 1.5rem; line-height: 1.7; }
-
   .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
   .section-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; margin-top: 1.25rem; }
   .section-label:first-child { margin-top: 0; }
@@ -152,30 +147,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Setup screen -->
-<div class="key-screen" id="key-screen">
-  <div class="key-box">
-    <h1>Meal Planner</h1>
-    <p>Enter your Anthropic API key to get started. Your keys are stored only in your browser's localStorage and used solely to call the respective APIs.</p>
-    <div class="field">
-      <label>Anthropic API key</label>
-      <input type="password" id="setup-anthropic" placeholder="sk-ant-..."/>
-    </div>
-    <div class="field">
-      <label>JSONBin X-Master-Key</label>
-      <input type="password" id="setup-jb-key" placeholder="$2a$10$..."/>
-    </div>
-    <div class="field">
-      <label>JSONBin Bin ID</label>
-      <input type="text" id="setup-jb-bin" placeholder="6a1db47c..."/>
-    </div>
-    <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="saveSetup()">Get started</button>
-    <p style="font-size:12px;color:var(--ink-light);margin-top:12px;text-align:center">Anthropic key from <a href="https://console.anthropic.com" target="_blank" style="color:var(--terracotta)">console.anthropic.com</a> · JSONBin from <a href="https://jsonbin.io" target="_blank" style="color:var(--terracotta)">jsonbin.io</a></p>
-  </div>
-</div>
-
-<!-- Main app -->
-<div class="shell" id="main-app" style="display:none">
+<div class="shell">
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="wordmark">Meal Planner</div>
@@ -214,7 +186,6 @@
 
   <main class="main">
 
-    <!-- PLANNER -->
     <div id="tab-planner" class="tab active">
       <div class="page-header">
         <div class="row-between">
@@ -237,7 +208,6 @@
       </div>
     </div>
 
-    <!-- RECIPES -->
     <div id="tab-recipes" class="tab">
       <div class="page-header">
         <div class="row-between">
@@ -251,7 +221,6 @@
       <div id="recipe-list"></div>
     </div>
 
-    <!-- PANTRY -->
     <div id="tab-pantry" class="tab">
       <div class="page-header">
         <div class="row-between">
@@ -260,12 +229,11 @@
         </div>
         <p>Stock is deducted each time a meal plan is generated. Items appear on your shopping list when stock falls below 15%.</p>
       </div>
-      <div class="card" style="padding: 0 1.5rem">
+      <div class="card" style="padding:0 1.5rem">
         <div id="pantry-list"></div>
       </div>
     </div>
 
-    <!-- SHOPPING -->
     <div id="tab-shopping" class="tab">
       <div class="page-header">
         <div class="row-between">
@@ -280,7 +248,6 @@
       <div id="shopping-wrap"></div>
     </div>
 
-    <!-- SETTINGS -->
     <div id="tab-settings" class="tab">
       <div class="page-header"><h1>Settings</h1></div>
       <div class="card">
@@ -315,10 +282,9 @@
           Baked into all AI-generated plans. Optimised for insulin sensitivity, anti-inflammation, and 110–140g protein per day.
         </div>
         <div class="divider"></div>
-        <div class="section-label">Keys &amp; storage</div>
-        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">Keys are stored in your browser's localStorage. Data syncs to JSONBin on every save.</div>
+        <div class="section-label">Data</div>
+        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">All data syncs to JSONBin automatically on every change.</div>
         <div class="row-gap">
-          <button class="btn btn-sm" onclick="openModal('keys')">Update keys</button>
           <button class="btn btn-sm" onclick="loadFromBin()">Sync now</button>
           <button class="btn btn-sm btn-danger" onclick="clearAll()">Clear all data</button>
         </div>
@@ -328,7 +294,6 @@
   </main>
 </div>
 
-<!-- Modal -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="row-between" style="margin-bottom:1.25rem">
@@ -340,6 +305,10 @@
 </div>
 
 <script>
+// JSONBin credentials (storage only, not secret)
+const JB_KEY = '$2a$10$YCxfYdd0/BPMvaRAxk8yiuil9T0PEawZFz/q1TPKkleMutgDgllZu';
+const JB_BIN = '6a1db47c21f9ee59d2a649fd';
+
 const PCOS = `You are a meal planning assistant for Laurie and Sylvie, a couple in London.
 Strictly follow all dietary rules:
 - Pescatarian: fish and seafood only, absolutely no meat or poultry
@@ -359,9 +328,6 @@ let S = { recipes:[], pantry:[], weeks:{}, settings:{ mealsPerWeek:5, avoidWeeks
 let saveTimer = null;
 
 function uid(p){ return p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
-function getAnthropicKey(){ return localStorage.getItem('mp_ak')||''; }
-function getJBKey(){ return localStorage.getItem('mp_jbk')||''; }
-function getJBBin(){ return localStorage.getItem('mp_jbb')||''; }
 
 function toast(msg, dur=2500){
   const el=document.getElementById('toast');
@@ -375,19 +341,6 @@ function getWeek(offset){
   return { key:s.toISOString().slice(0,10), start:s, end:e };
 }
 function fmt(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
-
-function saveSetup(){
-  const ak=document.getElementById('setup-anthropic').value.trim();
-  const jbk=document.getElementById('setup-jb-key').value.trim();
-  const jbb=document.getElementById('setup-jb-bin').value.trim();
-  if(!ak||!jbk||!jbb){ alert('Please fill in all three fields.'); return; }
-  localStorage.setItem('mp_ak', ak);
-  localStorage.setItem('mp_jbk', jbk);
-  localStorage.setItem('mp_jbb', jbb);
-  document.getElementById('key-screen').style.display='none';
-  document.getElementById('main-app').style.display='flex';
-  init();
-}
 
 function showTab(name, el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -408,19 +361,29 @@ function setSyncStatus(state, sub){
   sublbl.textContent=sub?' · '+sub:'';
 }
 
-// JSONBin API
+// All Anthropic API calls go through /api/proxy — key never touches the browser
+async function callAI(body){
+  const res=await fetch('/api/proxy',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error '+res.status); }
+  return res.json();
+}
+
 async function loadFromBin(){
   setSyncStatus('syncing','');
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${getJBBin()}/latest`, {
-      headers: { 'X-Master-Key': getJBKey() }
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`,{
+      headers:{'X-Master-Key':JB_KEY}
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
-    const data = await r.json();
-    const j = data.record;
+    const data=await r.json();
+    const j=data.record;
     if(j.recipes) S.recipes=j.recipes;
-    if(j.pantry) S.pantry=j.pantry;
-    if(j.weeks) S.weeks=j.weeks;
+    if(j.pantry)  S.pantry=j.pantry;
+    if(j.weeks)   S.weeks=j.weeks;
     if(j.settings) S.settings={...S.settings,...j.settings};
     applySettings();
     renderAll();
@@ -433,10 +396,10 @@ async function loadFromBin(){
 async function saveToBin(){
   setSyncStatus('syncing','');
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${getJBBin()}`, {
-      method: 'PUT',
-      headers: { 'Content-Type':'application/json', 'X-Master-Key': getJBKey() },
-      body: JSON.stringify({ recipes:S.recipes, pantry:S.pantry, weeks:S.weeks, settings:S.settings })
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
+      body:JSON.stringify({recipes:S.recipes,pantry:S.pantry,weeks:S.weeks,settings:S.settings})
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
@@ -447,7 +410,7 @@ async function saveToBin(){
 
 function scheduleSave(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveToBin, 800);
+  saveTimer=setTimeout(saveToBin, 800);
 }
 
 function applySettings(){
@@ -459,12 +422,11 @@ function applySettings(){
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
 
 function clearAll(){
-  if(!confirm('Clear all data? This will also overwrite your JSONBin.')) return;
+  if(!confirm('Clear all data? This cannot be undone.')) return;
   S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0};
   renderAll(); applySettings(); saveToBin();
 }
 
-// Render functions
 function renderPlanner(){
   const {key,start,end}=getWeek(S.weekOffset);
   const lbl=S.weekOffset===0?'This week':S.weekOffset===-1?'Last week':S.weekOffset===1?'Next week':fmt(start)+' week';
@@ -571,7 +533,6 @@ function renderShopping(){
 
 function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderShopping(); }
 
-// AI plan generation
 async function generatePlan(){
   if(S.recipes.length<2){ alert('Add at least 2 recipes before generating a plan.'); return; }
   const st=document.getElementById('status-planner');
@@ -589,13 +550,7 @@ async function generatePlan(){
   }
   const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners for the week. Vary proteins and cooking methods. Balance PCOS nutrition goals.\n\nReturn ONLY a JSON array, no markdown, no explanation:\n[{"day":"Monday","recipeId":"..."},{"day":"Tuesday","recipeId":"..."},...]`;
   try {
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':getAnthropicKey(),'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})
-    });
-    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
-    const data=await res.json();
+    const data=await callAI({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]});
     const txt=data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
     const plan=JSON.parse(txt);
     S.weeks[key]={};
@@ -624,14 +579,12 @@ function removeMeal(wk,day){
   renderPlanner(); scheduleSave();
 }
 
-// Modals
 function openModal(type){
   const title=document.getElementById('modal-title');
   const body=document.getElementById('modal-body');
   if(type==='manual'){ title.textContent='Add recipe'; body.innerHTML=recipeFormHTML(); }
   else if(type==='url'){ title.textContent='Add from URL'; body.innerHTML=urlFormHTML(); }
   else if(type==='pantry'){ title.textContent='Add pantry item'; body.innerHTML=pantryFormHTML(); }
-  else if(type==='keys'){ title.textContent='Update keys'; body.innerHTML=keysFormHTML(); }
   document.getElementById('modal-bg').classList.add('open');
 }
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
@@ -685,36 +638,13 @@ function pantryFormHTML(){
   </div>`;
 }
 
-function keysFormHTML(){
-  return `<div class="field"><label>Anthropic API key</label><input type="password" id="k-ak" value="${getAnthropicKey()}" placeholder="sk-ant-..."/></div>
-  <div class="field"><label>JSONBin X-Master-Key</label><input type="password" id="k-jbk" value="${getJBKey()}" placeholder="$2a$10$..."/></div>
-  <div class="field"><label>JSONBin Bin ID</label><input type="text" id="k-jbb" value="${getJBBin()}"/></div>
-  <div class="row-gap" style="margin-top:1rem">
-    <button class="btn btn-primary" onclick="saveKeys()">Save keys</button>
-    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-  </div>`;
-}
-
-function saveKeys(){
-  localStorage.setItem('mp_ak', document.getElementById('k-ak').value.trim());
-  localStorage.setItem('mp_jbk', document.getElementById('k-jbk').value.trim());
-  localStorage.setItem('mp_jbb', document.getElementById('k-jbb').value.trim());
-  closeModal(); toast('Keys saved ✓');
-}
-
 async function extractUrl(){
   const url=document.getElementById('url-in').value.trim();
   if(!url){ alert('Enter a URL.'); return; }
   document.getElementById('url-status').style.display='flex';
   const prompt=`${PCOS}\n\nFetch and extract the recipe at this URL: ${url}\n\nReturn ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt the recipe to be gluten-free and pescatarian if needed.`;
   try {
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':getAnthropicKey(),'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})
-    });
-    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
-    const data=await res.json();
+    const data=await callAI({model:'claude-sonnet-4-20250514',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]});
     const txt=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
     const recipe=JSON.parse(txt);
     document.getElementById('url-status').style.display='none';
@@ -794,18 +724,9 @@ function markPurchased(){
   renderPantry(); renderShopping(); scheduleSave(); toast('Pantry restocked ✓');
 }
 
-function init(){
-  applySettings();
-  renderAll();
-  loadFromBin();
-}
-
-// Boot
-if(getAnthropicKey()&&getJBKey()&&getJBBin()){
-  document.getElementById('key-screen').style.display='none';
-  document.getElementById('main-app').style.display='flex';
-  init();
-}
+applySettings();
+renderAll();
+loadFromBin();
 </script>
 </body>
 </html>
