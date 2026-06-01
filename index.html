@@ -550,7 +550,7 @@ async function generatePlan(){
   }
   const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners for the week. Vary proteins and cooking methods. Balance PCOS nutrition goals.\n\nReturn ONLY a JSON array, no markdown, no explanation:\n[{"day":"Monday","recipeId":"..."},{"day":"Tuesday","recipeId":"..."},...]`;
   try {
-    const data=await callAI({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]});
+    const data=await callAI({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]});
     const txt=data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
     const plan=JSON.parse(txt);
     S.weeks[key]={};
@@ -644,7 +644,7 @@ async function extractUrl(){
   document.getElementById('url-status').style.display='flex';
   const prompt=`${PCOS}\n\nFetch and extract the recipe at this URL: ${url}\n\nReturn ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt the recipe to be gluten-free and pescatarian if needed.`;
   try {
-    const data=await callAI({model:'claude-sonnet-4-20250514',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]});
+    const data=await callAI({model:'claude-sonnet-4-6',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]});
     const txt=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
     const recipe=JSON.parse(txt);
     document.getElementById('url-status').style.display='none';
