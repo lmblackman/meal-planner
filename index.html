@@ -28,15 +28,8 @@
   html, body { height: 100%; }
   body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); font-size: 15px; line-height: 1.6; min-height: 100vh; }
 
-  /* ── Layout ── */
   .shell { display: flex; min-height: 100vh; }
-
-  /* Desktop sidebar */
-  .sidebar {
-    width: var(--sidebar-w); flex-shrink: 0; background: var(--ink);
-    padding: 2rem 0; display: flex; flex-direction: column;
-    position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
-  }
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--ink); padding: 2rem 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
   .main { margin-left: var(--sidebar-w); flex: 1; padding: 2.5rem 2.5rem 4rem; max-width: 860px; }
 
   .sidebar-logo { padding: 0 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem; }
@@ -57,34 +50,23 @@
   .sync-label { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
   .sync-label strong { color: rgba(255,255,255,0.7); display: block; font-weight: 400; font-size: 12px; }
 
-  /* Mobile bottom nav */
-  .bottom-nav {
-    display: none; position: fixed; bottom: 0; left: 0; right: 0;
-    height: var(--bottom-nav-h); background: var(--ink); z-index: 100;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-h); background: var(--ink); z-index: 100; border-top: 1px solid rgba(255,255,255,0.08); padding-bottom: env(safe-area-inset-bottom); }
   .bottom-nav-inner { display: flex; height: 100%; }
   .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: rgba(255,255,255,0.4); cursor: pointer; transition: color 0.15s; font-size: 10px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; user-select: none; }
   .bottom-nav-item svg { width: 20px; height: 20px; }
   .bottom-nav-item.active { color: var(--terracotta); }
   .bottom-nav-item:active { opacity: 0.7; }
 
-  /* Mobile sync bar */
   .mobile-sync-bar { display: none; align-items: center; gap: 8px; padding: 8px 16px; background: var(--ink); font-size: 12px; color: rgba(255,255,255,0.5); }
 
-  /* ── Tabs ── */
   .tab { display: none; } .tab.active { display: block; }
 
-  /* ── Page header ── */
   .page-header { margin-bottom: 1.5rem; }
   .page-header h1 { font-family: 'Lora', serif; font-size: 26px; font-weight: 400; margin-bottom: 4px; }
   .page-header p { font-size: 14px; color: var(--ink-mid); }
 
-  /* ── Cards ── */
   .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px; }
 
-  /* ── Buttons ── */
   .btn { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: #fff; color: var(--ink); cursor: pointer; transition: all 0.15s; font-weight: 400; touch-action: manipulation; }
   .btn:hover { background: var(--cream-dark); }
   .btn:active { transform: scale(0.97); }
@@ -99,7 +81,6 @@
   .btn-danger:hover { background: #fdf0f0; }
   .btn-full { width: 100%; padding: 14px; font-size: 15px; border-radius: var(--radius-lg); }
 
-  /* ── Forms ── */
   .field { margin-bottom: 14px; }
   .field label { font-size: 12px; font-weight: 500; color: var(--ink-mid); display: block; margin-bottom: 5px; letter-spacing: 0.03em; text-transform: uppercase; }
   input[type=text], input[type=url], input[type=number], input[type=password], select, textarea {
@@ -115,36 +96,47 @@
   .row-between { display: flex; justify-content: space-between; align-items: center; }
   .row-gap { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ── Badges ── */
   .badge { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
   .badge-sage { background: var(--sage-light); color: var(--sage); }
   .badge-terra { background: var(--terracotta-light); color: var(--terracotta); }
   .badge-muted { background: var(--cream-dark); color: var(--ink-mid); }
 
-  /* ── Status bar ── */
   .status-bar { font-size: 13px; color: var(--ink-mid); padding: 10px 14px; background: var(--cream-dark); border-radius: var(--radius); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
   .spinner { width: 14px; height: 14px; border: 2px solid var(--border-strong); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Planner ── */
   .week-nav { display: flex; align-items: center; gap: 8px; }
   .week-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 400; }
   .week-sub { font-size: 13px; color: var(--ink-light); }
 
+  /* Meal slots */
   .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
   .meal-slot .day-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; }
   .meal-slot .meal-name { font-family: 'Lora', serif; font-size: 17px; font-weight: 400; }
   .meal-slot .meal-meta { font-size: 12px; color: var(--ink-mid); margin-top: 3px; }
   .meal-slot.empty-slot { border-style: dashed; background: transparent; }
   .meal-slot.empty-slot .meal-name { color: var(--ink-light); font-family: 'DM Sans', sans-serif; font-size: 14px; font-style: italic; }
+  .meal-slot-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; }
 
-  /* ── Recipes ── */
+  /* Reroll button */
+  .btn-reroll { padding: 5px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; color: var(--ink-mid); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+  .btn-reroll:hover { background: var(--cream-dark); color: var(--ink); }
+  .btn-reroll svg { width: 12px; height: 12px; }
+  .btn-reroll.spinning svg { animation: spin 0.6s linear infinite; }
+
+  /* Recipe cards */
   .recipe-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
   .recipe-card-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 400; margin-bottom: 4px; }
   .recipe-card-meta { font-size: 12px; color: var(--ink-mid); }
   .recipe-card-ings { font-size: 12px; color: var(--ink-light); margin-top: 5px; }
 
-  /* ── Pantry ── */
+  /* Rating buttons */
+  .rating-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 4px; opacity: 0.3; transition: opacity 0.15s, transform 0.1s; line-height: 1; }
+  .rating-btn:hover { opacity: 0.7; }
+  .rating-btn.active { opacity: 1; }
+  .rating-btn:active { transform: scale(1.2); }
+
+  /* Pantry */
   .pantry-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
   .pantry-row:last-child { border-bottom: none; }
   .pantry-name { flex: 2; font-size: 14px; min-width: 0; }
@@ -155,25 +147,23 @@
   .pantry-bar-fill { height: 100%; border-radius: 99px; }
   .pantry-pct { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
 
-  /* ── Shopping ── */
+  /* Shopping */
   .shop-cat { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin: 1.25rem 0 6px; }
   .shop-cat:first-child { margin-top: 0; }
   .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .shop-row:last-child { border-bottom: none; }
   .shop-qty { font-size: 13px; color: var(--ink-mid); white-space: nowrap; margin-left: 8px; }
 
-  /* ── Ingredient rows ── */
   .ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
   .ing-row input, .ing-row select { padding: 8px 10px; font-size: 14px; }
 
-  /* ── Modal ── */
+  /* Modal */
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(28,28,26,0.5); z-index: 500; padding: 1rem; overflow-y: auto; backdrop-filter: blur(2px); align-items: flex-end; justify-content: center; }
   .modal-bg.open { display: flex; }
   .modal { background: #fff; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 1.5rem 1.25rem; width: 100%; max-width: 600px; border: 1px solid var(--border); max-height: 92vh; overflow-y: auto; }
   .modal-handle { width: 36px; height: 4px; background: var(--cream-dark); border-radius: 99px; margin: 0 auto 1.25rem; }
   .modal-title { font-family: 'Lora', serif; font-size: 20px; font-weight: 400; margin-bottom: 1.25rem; }
 
-  /* ── Misc ── */
   .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
   .section-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; margin-top: 1.25rem; }
   .section-label:first-child { margin-top: 0; }
@@ -183,16 +173,11 @@
   .toast { position: fixed; bottom: calc(var(--bottom-nav-h) + 12px); left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 99px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; white-space: nowrap; }
   .toast.show { opacity: 1; }
 
-  /* ── Mobile overrides ── */
   @media (max-width: 680px) {
     .sidebar { display: none; }
     .bottom-nav { display: block; }
     .mobile-sync-bar { display: flex; }
-    .main {
-      margin-left: 0;
-      padding: 1.25rem 1rem calc(var(--bottom-nav-h) + 1.5rem);
-      max-width: 100%;
-    }
+    .main { margin-left: 0; padding: 1.25rem 1rem calc(var(--bottom-nav-h) + 1.5rem); max-width: 100%; }
     .page-header h1 { font-size: 22px; }
     .modal-bg { align-items: flex-end; padding: 0; }
     .modal { border-radius: var(--radius-lg) var(--radius-lg) 0 0; max-height: 90vh; }
@@ -201,12 +186,10 @@
     .ing-row { flex-wrap: wrap; }
     .ing-row input, .ing-row select { min-width: 0; }
     .row-gap { gap: 6px; }
-    .btn-full-mobile { width: 100%; padding: 14px; font-size: 15px; }
     .hide-mobile { display: none !important; }
     .card { padding: 1rem; }
     .pantry-bar-wrap { display: none; }
   }
-
   @media (min-width: 681px) {
     .bottom-nav { display: none; }
     .mobile-sync-bar { display: none; }
@@ -221,7 +204,6 @@
 <div class="toast" id="toast"></div>
 
 <div class="shell">
-  <!-- Desktop sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="wordmark">Meal Planner</div>
@@ -258,7 +240,6 @@
     </div>
   </aside>
 
-  <!-- Mobile sync bar -->
   <div class="mobile-sync-bar" id="mobile-sync-bar">
     <span class="sync-dot syncing" id="sync-dot-mobile"></span>
     <span id="sync-label-mobile" style="flex:1;font-size:12px">Connecting...</span>
@@ -286,9 +267,8 @@
         <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <p>No meals planned yet.<br>Add some recipes, then generate a plan.</p>
       </div>
-      <!-- Mobile generate button -->
       <div style="margin-top:16px">
-        <button class="btn btn-terra btn-full btn-full-mobile" onclick="generatePlan()" style="display:none" id="mobile-generate-btn">✦ Generate plan</button>
+        <button class="btn btn-terra btn-full" onclick="generatePlan()" style="display:none" id="mobile-generate-btn">✦ Generate plan</button>
       </div>
     </div>
 
@@ -344,19 +324,15 @@
         <div class="field">
           <label>Dinners per week</label>
           <select id="set-meals" onchange="saveSetting('mealsPerWeek',+this.value)">
-            <option value="3">3 dinners</option>
-            <option value="4">4 dinners</option>
-            <option value="5">5 dinners</option>
-            <option value="6">6 dinners</option>
+            <option value="3">3 dinners</option><option value="4">4 dinners</option>
+            <option value="5">5 dinners</option><option value="6">6 dinners</option>
             <option value="7">7 dinners</option>
           </select>
         </div>
         <div class="field">
           <label>Avoid repeating meals from last</label>
           <select id="set-avoid" onchange="saveSetting('avoidWeeks',+this.value)">
-            <option value="1">1 week</option>
-            <option value="2">2 weeks</option>
-            <option value="3">3 weeks</option>
+            <option value="1">1 week</option><option value="2">2 weeks</option><option value="3">3 weeks</option>
           </select>
         </div>
         <div class="divider"></div>
@@ -383,7 +359,6 @@
   </main>
 </div>
 
-<!-- Mobile bottom nav -->
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
     <div class="bottom-nav-item active" id="bn-planner" onclick="showTabMobile('planner')">
@@ -409,7 +384,6 @@
   </div>
 </nav>
 
-<!-- Modal -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -477,26 +451,22 @@ function showTabMobile(name){
 }
 
 function onTabChange(name){
-  // Show/hide mobile-specific elements
-  const genBtn = document.getElementById('mobile-generate-btn');
-  const urlBtn = document.getElementById('mobile-url-btn');
-  if(genBtn) genBtn.style.display = (name==='planner' && isMobile()) ? 'block' : 'none';
-  if(urlBtn) urlBtn.style.display = (name==='recipes' && isMobile()) ? 'block' : 'none';
-  const renders = {planner:renderPlanner,recipes:renderRecipes,pantry:renderPantry,shopping:renderShopping};
-  renders[name]?.();
+  const genBtn=document.getElementById('mobile-generate-btn');
+  const urlBtn=document.getElementById('mobile-url-btn');
+  if(genBtn) genBtn.style.display=(name==='planner'&&isMobile())?'block':'none';
+  if(urlBtn) urlBtn.style.display=(name==='recipes'&&isMobile())?'block':'none';
+  ({planner:renderPlanner,recipes:renderRecipes,pantry:renderPantry,shopping:renderShopping})[name]?.();
 }
 
 function changeWeek(d){ S.weekOffset+=d; renderPlanner(); }
 
 function setSyncStatus(state, sub){
-  const states = {ok:'Synced', error:'Sync failed', syncing:'Syncing...'};
-  const dotClass = state==='ok'?'ok':state==='error'?'error':'syncing';
-  // Desktop
-  document.getElementById('sync-dot').className='sync-dot '+dotClass;
+  const states={ok:'Synced',error:'Sync failed',syncing:'Syncing...'};
+  const dc=state==='ok'?'ok':state==='error'?'error':'syncing';
+  document.getElementById('sync-dot').className='sync-dot '+dc;
   document.getElementById('sync-label-main').textContent=states[state]||'Connecting...';
   document.getElementById('sync-label-sub').textContent=sub?' · '+sub:'';
-  // Mobile
-  document.getElementById('sync-dot-mobile').className='sync-dot '+dotClass;
+  document.getElementById('sync-dot-mobile').className='sync-dot '+dc;
   document.getElementById('sync-label-mobile').textContent=(states[state]||'Connecting...')+(sub?' · '+sub:'');
 }
 
@@ -540,6 +510,16 @@ function applySettings(){
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
 function clearAll(){ if(!confirm('Clear all data?')) return; S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0}; renderAll(); applySettings(); saveToBin(); }
 
+// ── Rating ──────────────────────────────────────────────────────────────────
+function setRating(id, rating){
+  const r=S.recipes.find(r=>r.id===id); if(!r) return;
+  // Toggle off if clicking same rating
+  r.rating = r.rating===rating ? null : rating;
+  renderRecipes(); scheduleSave();
+  toast(r.rating===1?'👍 Marked as favourite':r.rating===-1?'👎 Marked as disliked':'Rating cleared');
+}
+
+// ── Render planner ───────────────────────────────────────────────────────────
 function renderPlanner(){
   const {key,start,end}=getWeek(S.weekOffset);
   const lbl=S.weekOffset===0?'This week':S.weekOffset===-1?'Last week':S.weekOffset===1?'Next week':fmt(start)+' week';
@@ -553,21 +533,64 @@ function renderPlanner(){
   const hasMeals=Object.keys(week).length>0;
   empty.style.display=hasMeals?'none':'';
   if(genBtn) genBtn.style.display=isMobile()?'block':'none';
+  // Reroll icon SVG (refresh arrows, no emoji)
+  const rerollIcon=`<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`;
   slots.innerHTML=hasMeals?DAYS.slice(0,mpw).map(day=>{
     const meal=week[day];
     const r=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
     if(!r) return `<div class="meal-slot empty-slot"><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>`;
+    const ratingLabel=r.rating===1?'👍':r.rating===-1?'👎':'';
     return `<div class="meal-slot"><div class="row-between">
       <div style="min-width:0;flex:1">
         <div class="day-label">${day}</div>
-        <div class="meal-name">${r.name}</div>
+        <div class="meal-name">${r.name} ${ratingLabel}</div>
         <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
       </div>
-      <button class="btn btn-sm btn-danger" style="flex-shrink:0;margin-left:8px" onclick="removeMeal('${key}','${day}')">✕</button>
+      <div class="meal-slot-actions">
+        <button class="btn-reroll" id="reroll-${day}" onclick="rerollMeal('${key}','${day}')" title="Try a different meal">${rerollIcon} New</button>
+        <button class="btn btn-sm btn-danger" onclick="removeMeal('${key}','${day}')">✕</button>
+      </div>
     </div></div>`;
   }).join(''):'';
 }
 
+// ── Reroll ───────────────────────────────────────────────────────────────────
+async function rerollMeal(weekKey, day){
+  const btn=document.getElementById('reroll-'+day);
+  if(btn){ btn.classList.add('spinning'); btn.disabled=true; }
+  const week=S.weeks[weekKey]||{};
+  // IDs already planned this week (to avoid repeats)
+  const usedIds=Object.values(week).map(m=>m.recipeId).filter(Boolean);
+  // IDs used in recent weeks
+  const recentNames=[];
+  for(let i=1;i<=(S.settings.avoidWeeks||2);i++){
+    const wk=getWeek(S.weekOffset-i);
+    Object.values(S.weeks[wk.key]||{}).forEach(m=>{
+      const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recentNames.push(r.name);
+    });
+  }
+  const available=S.recipes.filter(r=>!usedIds.includes(r.id));
+  if(available.length===0){ toast('No other recipes available'); if(btn){btn.classList.remove('spinning');btn.disabled=false;} return; }
+  const prompt=`${PCOS}\n\nAvailable recipes to choose from (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([d,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1 (thumbs up). Pick a different meal from what was previously on ${day}.\n\nReturn ONLY a JSON object, no markdown:\n{"recipeId":"..."}`;
+  try {
+    const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok) throw new Error('API error');
+    const data=await res.json();
+    const raw=data.content.map(b=>b.text||'').join('');
+    const match=raw.match(/\{[\s\S]*?\}/);
+    if(!match) throw new Error('No response');
+    const result=JSON.parse(match[0]);
+    if(result.recipeId){
+      S.weeks[weekKey][day]={recipeId:result.recipeId};
+      renderPlanner(); scheduleSave();
+      const newRecipe=S.recipes.find(r=>r.id===result.recipeId);
+      toast(newRecipe?`${day}: ${newRecipe.name}`:'Meal updated');
+    }
+  } catch(e){ toast('Could not reroll: '+e.message); }
+  finally { if(btn){btn.classList.remove('spinning');btn.disabled=false;} }
+}
+
+// ── Render recipes ───────────────────────────────────────────────────────────
 function renderRecipes(){
   const el=document.getElementById('recipe-list');
   const urlBtn=document.getElementById('mobile-url-btn');
@@ -576,16 +599,32 @@ function renderRecipes(){
     el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.</p></div>';
     return;
   }
-  el.innerHTML=S.recipes.map(r=>`<div class="recipe-card"><div class="row-between">
-    <div class="recipe-card-title" style="min-width:0;flex:1;margin-right:8px">${r.name}</div>
-    <div class="row-gap" style="flex-shrink:0">
-      <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
-<button class="btn btn-sm btn-ghost" onclick="editRecipe('${r.id}')">Edit</button>
-<button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">✕</button>
-    </div></div>
-    <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
-    ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,4).map(i=>i.name).join(', ')+(r.ingredients.length>4?'…':'')+'</div>':''}
-  </div>`).join('');
+  // Sort: thumbs up first, unrated next, thumbs down last
+  const sorted=[...S.recipes].sort((a,b)=>(b.rating||0)-(a.rating||0));
+  el.innerHTML=sorted.map(r=>{
+    const upActive=r.rating===1?'active':'';
+    const downActive=r.rating===-1?'active':'';
+    return `<div class="recipe-card">
+      <div class="row-between" style="align-items:flex-start">
+        <div style="min-width:0;flex:1;margin-right:8px">
+          <div class="recipe-card-title">${r.name}</div>
+          <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
+          ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,4).map(i=>i.name).join(', ')+(r.ingredients.length>4?'…':'')+'</div>':''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <div style="display:flex;gap:2px;align-items:center">
+            <button class="rating-btn ${upActive}" onclick="setRating('${r.id}',1)" title="Thumbs up">👍</button>
+            <button class="rating-btn ${downActive}" onclick="setRating('${r.id}',-1)" title="Thumbs down">👎</button>
+          </div>
+          <div class="row-gap" style="gap:4px">
+            <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
+            <button class="btn btn-sm btn-ghost" onclick="editRecipe('${r.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderPantry(){
@@ -648,6 +687,7 @@ function renderShopping(){
 
 function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderShopping(); }
 
+// ── Generate full plan ───────────────────────────────────────────────────────
 async function generatePlan(){
   if(S.recipes.length<2){ alert('Add at least 2 recipes first.'); return; }
   const st=document.getElementById('status-planner');
@@ -661,15 +701,15 @@ async function generatePlan(){
       const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recent.push(r.name);
     });
   }
-  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Vary proteins and cooking methods. Balance PCOS nutrition.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
+  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Prefer recipes with rating 1 (thumbs up). Avoid rating -1 (thumbs down) unless no alternatives. Vary proteins and cooking methods. Balance PCOS nutrition.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
   try {
     const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})});
     if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
     const data=await res.json();
     const raw=data.content.map(b=>b.text||'').join('');
-const match=raw.match(/\[[\s\S]*\]/);
-if(!match) throw new Error('No plan data found in response');
-const plan=JSON.parse(match[0]);
+    const match=raw.match(/\[[\s\S]*\]/);
+    if(!match) throw new Error('No plan data found');
+    const plan=JSON.parse(match[0]);
     S.weeks[key]={};
     plan.forEach(item=>{ if(item.day&&item.recipeId) S.weeks[key][item.day]={recipeId:item.recipeId}; });
     deductPantry(key);
@@ -692,6 +732,7 @@ function deductPantry(weekKey){
 
 function removeMeal(wk,day){ if(S.weeks[wk]) delete S.weeks[wk][day]; renderPlanner(); scheduleSave(); }
 
+// ── Modals ───────────────────────────────────────────────────────────────────
 function openModal(type){
   const title=document.getElementById('modal-title');
   const body=document.getElementById('modal-body');
@@ -699,7 +740,7 @@ function openModal(type){
   else if(type==='url'){ title.textContent='Add from URL'; body.innerHTML=urlFormHTML(); }
   else if(type==='pantry'){ title.textContent='Add pantry item'; body.innerHTML=pantryFormHTML(); }
   document.getElementById('modal-bg').classList.add('open');
-  setTimeout(()=>{ const first=document.querySelector('#modal-body input'); if(first) first.focus(); },300);
+  setTimeout(()=>{ const f=document.querySelector('#modal-body input'); if(f) f.focus(); },300);
 }
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
@@ -720,27 +761,6 @@ function recipeFormHTML(pf={}){
   </div>`;
 }
 
-function editRecipe(id){
-  const r=S.recipes.find(r=>r.id===id); if(!r) return;
-  document.getElementById('modal-title').textContent='Edit recipe';
-  document.getElementById('modal-body').innerHTML=recipeFormHTML(r);
-  // Replace the Save button to update instead of push
-  document.getElementById('modal-body').querySelector('button.btn-primary').onclick = function(){
-    const name=document.getElementById('r-name').value.trim();
-    if(!name){ alert('Enter a recipe name.'); return; }
-    const ings=[...document.querySelectorAll('#ing-list .ing-row')].map(row=>({
-      name:row.querySelector('.ing-name').value.trim(),
-      qty:parseFloat(row.querySelector('.ing-qty').value)||0,
-      unit:row.querySelector('.ing-unit').value.trim(),
-      category:row.querySelector('.ing-cat').value
-    })).filter(i=>i.name);
-    const idx=S.recipes.findIndex(r=>r.id===id);
-    S.recipes[idx]={ ...S.recipes[idx], name, protein:parseInt(document.getElementById('r-protein').value)||null, tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean), method:document.getElementById('r-method').value.trim(), ingredients:ings };
-    closeModal(); renderRecipes(); scheduleSave(); toast('Recipe updated ✓');
-    };
-  document.getElementById('modal-bg').classList.add('open');
-}
-  
 function ingRowHTML(ing={}){
   return `<div class="ing-row">
     <input type="text" class="ing-name" value="${ing.name||''}" placeholder="Ingredient" style="flex:2;min-width:80px"/>
@@ -783,9 +803,9 @@ async function extractUrl(){
     if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
     const data=await res.json();
     const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-const match=raw.match(/\{[\s\S]*\}/);
-if(!match) throw new Error('No recipe data found in response');
-const recipe=JSON.parse(match[0]);
+    const match=raw.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('No recipe data found');
+    const recipe=JSON.parse(match[0]);
     document.getElementById('url-status').style.display='none';
     document.getElementById('modal-title').textContent='Confirm recipe';
     document.getElementById('modal-body').innerHTML=recipeFormHTML(recipe);
@@ -801,8 +821,28 @@ function saveRecipe(){
     unit:row.querySelector('.ing-unit').value.trim(),
     category:row.querySelector('.ing-cat').value
   })).filter(i=>i.name);
-  S.recipes.push({ id:uid('r'), name, protein:parseInt(document.getElementById('r-protein').value)||null, tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean), method:document.getElementById('r-method').value.trim(), ingredients:ings });
+  S.recipes.push({ id:uid('r'), name, protein:parseInt(document.getElementById('r-protein').value)||null, tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean), method:document.getElementById('r-method').value.trim(), ingredients:ings, rating:null });
   closeModal(); renderRecipes(); scheduleSave(); toast('Recipe saved ✓');
+}
+
+function editRecipe(id){
+  const r=S.recipes.find(r=>r.id===id); if(!r) return;
+  document.getElementById('modal-title').textContent='Edit recipe';
+  document.getElementById('modal-body').innerHTML=recipeFormHTML(r);
+  document.querySelector('#modal-body .btn-primary').onclick=function(){
+    const name=document.getElementById('r-name').value.trim();
+    if(!name){ alert('Enter a recipe name.'); return; }
+    const ings=[...document.querySelectorAll('#ing-list .ing-row')].map(row=>({
+      name:row.querySelector('.ing-name').value.trim(),
+      qty:parseFloat(row.querySelector('.ing-qty').value)||0,
+      unit:row.querySelector('.ing-unit').value.trim(),
+      category:row.querySelector('.ing-cat').value
+    })).filter(i=>i.name);
+    const idx=S.recipes.findIndex(r=>r.id===id);
+    S.recipes[idx]={...S.recipes[idx],name,protein:parseInt(document.getElementById('r-protein').value)||null,tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean),method:document.getElementById('r-method').value.trim(),ingredients:ings};
+    closeModal(); renderRecipes(); scheduleSave(); toast('Recipe updated ✓');
+  };
+  document.getElementById('modal-bg').classList.add('open');
 }
 
 function deleteRecipe(id){ if(!confirm('Delete this recipe?')) return; S.recipes=S.recipes.filter(r=>r.id!==id); renderRecipes(); scheduleSave(); }
@@ -810,7 +850,7 @@ function deleteRecipe(id){ if(!confirm('Delete this recipe?')) return; S.recipes
 function viewRecipe(id){
   const r=S.recipes.find(r=>r.id===id); if(!r) return;
   document.getElementById('modal-title').textContent=r.name;
-  const ings=r.ingredients&&r.ingredients.length ? r.ingredients.map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty} ${i.unit}</span></div>`).join('') : '<p style="color:var(--ink-light);font-size:14px">No ingredients listed.</p>';
+  const ings=r.ingredients&&r.ingredients.length?r.ingredients.map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty} ${i.unit}</span></div>`).join(''):'<p style="color:var(--ink-light);font-size:14px">No ingredients listed.</p>';
   document.getElementById('modal-body').innerHTML=`
     <div style="margin-bottom:12px">${r.tags&&r.tags.length?r.tags.map(t=>`<span class="badge badge-muted" style="margin-right:4px">${t}</span>`).join(''):''}${r.protein?`<span class="badge badge-sage">~${r.protein}g protein</span>`:''}</div>
     <div class="section-label">Ingredients</div>${ings}
