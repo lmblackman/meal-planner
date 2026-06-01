@@ -580,7 +580,8 @@ function renderRecipes(){
     <div class="recipe-card-title" style="min-width:0;flex:1;margin-right:8px">${r.name}</div>
     <div class="row-gap" style="flex-shrink:0">
       <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">✕</button>
+<button class="btn btn-sm btn-ghost" onclick="editRecipe('${r.id}')">Edit</button>
+<button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">✕</button>
     </div></div>
     <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
     ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,4).map(i=>i.name).join(', ')+(r.ingredients.length>4?'…':'')+'</div>':''}
@@ -719,6 +720,27 @@ function recipeFormHTML(pf={}){
   </div>`;
 }
 
+function editRecipe(id){
+  const r=S.recipes.find(r=>r.id===id); if(!r) return;
+  document.getElementById('modal-title').textContent='Edit recipe';
+  document.getElementById('modal-body').innerHTML=recipeFormHTML(r);
+  // Replace the Save button to update instead of push
+  document.getElementById('modal-body').querySelector('button.btn-primary').onclick = function(){
+    const name=document.getElementById('r-name').value.trim();
+    if(!name){ alert('Enter a recipe name.'); return; }
+    const ings=[...document.querySelectorAll('#ing-list .ing-row')].map(row=>({
+      name:row.querySelector('.ing-name').value.trim(),
+      qty:parseFloat(row.querySelector('.ing-qty').value)||0,
+      unit:row.querySelector('.ing-unit').value.trim(),
+      category:row.querySelector('.ing-cat').value
+    })).filter(i=>i.name);
+    const idx=S.recipes.findIndex(r=>r.id===id);
+    S.recipes[idx]={ ...S.recipes[idx], name, protein:parseInt(document.getElementById('r-protein').value)||null, tags:document.getElementById('r-tags').value.split(',').map(t=>t.trim()).filter(Boolean), method:document.getElementById('r-method').value.trim(), ingredients:ings };
+    closeModal(); renderRecipes(); scheduleSave(); toast('Recipe updated ✓');
+    };
+  document.getElementById('modal-bg').classList.add('open');
+}
+  
 function ingRowHTML(ing={}){
   return `<div class="ing-row">
     <input type="text" class="ing-name" value="${ing.name||''}" placeholder="Ingredient" style="flex:2;min-width:80px"/>
