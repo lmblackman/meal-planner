@@ -319,6 +319,28 @@
         </div>
         <p>Based on this week's plan. Tick items off as you shop.</p>
       </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <a href="https://www.ocado.com" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Ocado
+        </a>
+        <a href="https://www.tesco.com/groceries" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Tesco
+        </a>
+        <a href="https://www.waitrose.com/ecom/shop" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Waitrose
+        </a>
+        <a href="https://www.sainsburys.co.uk/gol-ui/groceries" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Sainsbury's
+        </a>
+        <a href="https://www.amazon.co.uk/alm/storefront" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Amazon Fresh
+        </a>
+      </div>
       <div id="shopping-wrap"></div>
     </div>
 
@@ -425,7 +447,8 @@ Anti-inflammatory: turmeric, ginger, garlic, cinnamon, berries, leafy greens
 Avoid: gluten in any form, meat, sugary drinks, white rice in large portions, processed foods`;
 
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const CATS = ['Fish & seafood','Produce','Dairy & eggs','Grains & pulses','Pantry','Frozen','Other'];
+const CATS = ['Fish & seafood','Fruit & veg','Dairy & eggs','Grains & pulses','Cupboard','Frozen','Other'];
+const PANTRY_CATS = ['Fish & seafood','Fruit & veg','Dairy & eggs','Grains & pulses','Cupboard','Frozen','Oils & condiments','Herbs & spices','Other'];
 
 let S = {
   recipes:[], pantry:[], weeks:{},
@@ -662,6 +685,7 @@ function renderPlanner(){
         </div>
         <div class="meal-slot-actions">
           <button class="btn-cooked${isCooked?' is-cooked':''}" onclick="toggleCooked('${key}','${day}')" title="${isCooked?'Mark as uncooked':'Mark as cooked'}">${isCooked?'✓ Cooked':'Mark cooked'}</button>
+          <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')" style="padding:5px 10px">View</button>
           <button class="btn-reroll" id="reroll-${day}" onclick="rerollMeal('${key}','${day}')" title="Try a different meal">${rerollIcon} New</button>
           <button class="btn btn-sm btn-danger" style="padding:5px 8px;text-align:center" onclick="removeMeal('${key}','${day}')">✕</button>
         </div>
@@ -705,30 +729,42 @@ function renderRecipes(){
   }).join('');
 }
 
+function renderPantryRow(item){
+  const pct=Math.min(100,Math.round((item.currentQty/item.totalQty)*100));
+  const col=pct>40?'#6B7B5E':pct>15?'#C4A040':'#C4704A';
+  const b=pct>40?'badge-sage':pct>15?'badge-terra':'';
+  const qtyDisplay=item.unit==='g'||item.unit==='ml'?Math.round(item.currentQty):item.currentQty.toFixed(1);
+  return `<div class="pantry-row">
+    <div class="pantry-name" title="${item.name}">${item.name}</div>
+    <div class="pantry-qty">${qtyDisplay}</div>
+    <div class="pantry-unit">${item.unit}</div>
+    <div class="pantry-bar-wrap">
+      <div class="pantry-bar"><div class="pantry-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="pantry-pct">${pct}%</div>
+    </div>
+    <span class="badge ${b}" style="${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'!'}</span>
+    <button class="btn btn-sm" onclick="editPantryItem('${item.id}')" title="Edit" style="padding:5px 8px">✎</button>
+    <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')" title="Remove" style="padding:5px 8px;text-align:center">✕</button>
+  </div>`;
+}
+
 function renderPantry(){
   const el=document.getElementById('pantry-list');
   if(!S.pantry.length){
     el.innerHTML='<div class="empty-state" style="padding:2rem"><p>No pantry items yet.</p></div>';
     return;
   }
-  el.innerHTML=S.pantry.map(item=>{
-    const pct=Math.min(100,Math.round((item.currentQty/item.totalQty)*100));
-    const col=pct>40?'#6B7B5E':pct>15?'#C4A040':'#C4704A';
-    const b=pct>40?'badge-sage':pct>15?'badge-terra':'';
-    const qtyDisplay=item.unit==='g'||item.unit==='ml'?Math.round(item.currentQty):item.currentQty.toFixed(1);
-    return `<div class="pantry-row">
-      <div class="pantry-name" title="${item.name}">${item.name}</div>
-      <div class="pantry-qty">${qtyDisplay}</div>
-      <div class="pantry-unit">${item.unit}</div>
-      <div class="pantry-bar-wrap">
-        <div class="pantry-bar"><div class="pantry-bar-fill" style="width:${pct}%;background:${col}"></div></div>
-        <div class="pantry-pct">${pct}%</div>
-      </div>
-      <span class="badge ${b}" style="${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'!'}</span>
-      <button class="btn btn-sm" onclick="editPantryItem('${item.id}')" title="Edit" style="padding:5px 8px">✎</button>
-      <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')" title="Remove" style="padding:5px 8px;text-align:center">✕</button>
-    </div>`;
-  }).join('');
+  const byCat={};
+  S.pantry.forEach(item=>{
+    const cat=item.pantryCategory||'Other';
+    if(!byCat[cat]) byCat[cat]=[];
+    byCat[cat].push(item);
+  });
+  const order=[...PANTRY_CATS.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!PANTRY_CATS.includes(c))];
+  el.innerHTML=order.map(cat=>`
+    <div style="font-size:11px;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.07em;padding:12px 0 6px;border-bottom:1px solid var(--border-strong)">${cat}</div>
+    ${byCat[cat].map(renderPantryRow).join('')}
+  `).join('');
 }
 
 function renderShopping(){
@@ -944,7 +980,9 @@ function urlFormHTML(){
 }
 
 function pantryFormHTML(pf={}){
+  const catOptions=PANTRY_CATS.map(c=>`<option${c===(pf.pantryCategory||'Other')?' selected':''} value="${c}">${c}</option>`).join('');
   return `<div class="field"><label>Item name</label><input type="text" id="p-name" value="${pf.name||''}" placeholder="e.g. Soy sauce"/></div>
+  <div class="field"><label>Category</label><select id="p-cat">${catOptions}</select></div>
   <div style="display:flex;gap:10px">
     <div class="field" style="flex:1"><label>Purchase size</label><input type="number" id="p-total" value="${pf.totalQty||''}" placeholder="1000" step="any" inputmode="decimal"/></div>
     <div class="field" style="flex:1"><label>Unit</label><input type="text" id="p-unit" value="${pf.unit||''}" placeholder="ml, g, count"/></div>
@@ -1027,8 +1065,9 @@ function savePantry(){
   const total=parseFloat(document.getElementById('p-total').value);
   const unit=document.getElementById('p-unit').value.trim();
   const cur=parseFloat(document.getElementById('p-cur').value);
+  const pantryCategory=document.getElementById('p-cat').value;
   if(!name||isNaN(total)||!unit){ alert('Fill in name, size, and unit.'); return; }
-  S.pantry.push({id:uid('p'),name,totalQty:total,unit,currentQty:isNaN(cur)?total:cur});
+  S.pantry.push({id:uid('p'),name,totalQty:total,unit,currentQty:isNaN(cur)?total:cur,pantryCategory});
   closeModal(); renderPantry(); scheduleSave(); toast('Pantry item added ✓');
 }
 
@@ -1043,7 +1082,8 @@ function editPantryItem(id){
     const cur=parseFloat(document.getElementById('p-cur').value);
     if(!name||isNaN(total)||!unit){ alert('Fill in name, size, and unit.'); return; }
     const idx=S.pantry.findIndex(p=>p.id===id);
-    S.pantry[idx]={...S.pantry[idx],name,totalQty:total,unit,currentQty:isNaN(cur)?S.pantry[idx].currentQty:cur};
+    const pantryCategory=document.getElementById('p-cat').value;
+    S.pantry[idx]={...S.pantry[idx],name,totalQty:total,unit,currentQty:isNaN(cur)?S.pantry[idx].currentQty:cur,pantryCategory};
     closeModal(); renderPantry(); scheduleSave(); toast('Pantry item updated ✓');
   };
   document.getElementById('modal-bg').classList.add('open');
