@@ -657,7 +657,7 @@ function renderPlanner(){
       <div class="row-between">
         <div style="min-width:0;flex:1">
           <div class="day-label">${day}${isCooked?' · <span style="color:var(--sage);font-weight:500">Cooked</span>':''}</div>
-          <div class="meal-name">${r.name}${ratingLabel}</div>
+          <div class="meal-name" onclick="viewRecipe('${r.id}')" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border-strong);text-underline-offset:3px">${r.name}${ratingLabel}</div>
           <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
         </div>
         <div class="meal-slot-actions">
