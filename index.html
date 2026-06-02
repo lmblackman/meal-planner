@@ -660,8 +660,8 @@ function renderPantry(){
         <div class="pantry-pct">${pct}%</div>
       </div>
       <span class="badge ${b}" style="${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'!'}</span>
-      <button class="btn btn-sm btn-ghost" onclick="editPantryItem('${item.id}')" title="Edit">✎</button>
-      <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')" title="Remove">✕</button>
+      <button class="btn btn-sm" onclick="editPantryItem('${item.id}')" title="Edit" style="padding:5px 8px">✎</button>
+      <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')" title="Remove" style="padding:5px 8px;text-align:center">✕</button>
     </div>`;
   }).join('');
 }
