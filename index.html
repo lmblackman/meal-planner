@@ -57,8 +57,6 @@
   .bottom-nav-item.active { color: var(--terracotta); }
   .bottom-nav-item:active { opacity: 0.7; }
 
-  .mobile-sync-bar { display: none; align-items: center; gap: 8px; padding: 8px 16px; background: var(--ink); font-size: 12px; color: rgba(255,255,255,0.5); }
-
   .tab { display: none; } .tab.active { display: block; }
 
   .page-header { margin-bottom: 1.5rem; }
@@ -109,7 +107,6 @@
   .week-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 400; }
   .week-sub { font-size: 13px; color: var(--ink-light); }
 
-  /* Meal slots */
   .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
   .meal-slot .day-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; }
   .meal-slot .meal-name { font-family: 'Lora', serif; font-size: 17px; font-weight: 400; }
@@ -118,46 +115,55 @@
   .meal-slot.empty-slot .meal-name { color: var(--ink-light); font-family: 'DM Sans', sans-serif; font-size: 14px; font-style: italic; }
   .meal-slot-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; }
 
-  /* Reroll button */
   .btn-reroll { padding: 5px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; color: var(--ink-mid); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
   .btn-reroll:hover { background: var(--cream-dark); color: var(--ink); }
   .btn-reroll svg { width: 12px; height: 12px; }
   .btn-reroll.spinning svg { animation: spin 0.6s linear infinite; }
 
-  /* Recipe cards */
   .recipe-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
   .recipe-card-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 400; margin-bottom: 4px; }
   .recipe-card-meta { font-size: 12px; color: var(--ink-mid); }
   .recipe-card-ings { font-size: 12px; color: var(--ink-light); margin-top: 5px; }
 
-  /* Rating buttons */
   .rating-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 4px; opacity: 0.3; transition: opacity 0.15s, transform 0.1s; line-height: 1; }
   .rating-btn:hover { opacity: 0.7; }
   .rating-btn.active { opacity: 1; }
   .rating-btn:active { transform: scale(1.2); }
 
-  /* Pantry */
-  .pantry-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  /* Pantry — fixed column layout */
+  .pantry-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 40px 160px 52px 28px 28px;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+  }
   .pantry-row:last-child { border-bottom: none; }
-  .pantry-name { flex: 2; font-size: 14px; min-width: 0; }
-  .pantry-qty { flex: 0 0 auto; font-size: 14px; font-weight: 500; white-space: nowrap; }
-  .pantry-unit { flex: 0 0 auto; font-size: 12px; color: var(--ink-light); }
-  .pantry-bar-wrap { flex: 2; min-width: 0; }
+  .pantry-name { font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pantry-qty { font-size: 14px; font-weight: 500; text-align: right; }
+  .pantry-unit { font-size: 12px; color: var(--ink-light); }
+  .pantry-bar-wrap { min-width: 0; }
   .pantry-bar { height: 3px; background: var(--cream-dark); border-radius: 99px; overflow: hidden; }
   .pantry-bar-fill { height: 100%; border-radius: 99px; }
   .pantry-pct { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
 
-  /* Shopping */
+  /* Shopping list */
   .shop-cat { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin: 1.25rem 0 6px; }
   .shop-cat:first-child { margin-top: 0; }
-  .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; gap: 8px; }
   .shop-row:last-child { border-bottom: none; }
-  .shop-qty { font-size: 13px; color: var(--ink-mid); white-space: nowrap; margin-left: 8px; }
+  .shop-row.purchased { opacity: 0.45; }
+  .shop-row.purchased .shop-name { text-decoration: line-through; }
+  .shop-name { flex: 1; min-width: 0; }
+  .shop-qty { font-size: 13px; color: var(--ink-mid); white-space: nowrap; }
+  .shop-tick { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border-strong); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; }
+  .shop-tick:hover { border-color: var(--sage); }
+  .shop-tick.ticked { background: var(--sage); border-color: var(--sage); color: #fff; }
 
   .ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
   .ing-row input, .ing-row select { padding: 8px 10px; font-size: 14px; }
 
-  /* Modal */
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(28,28,26,0.5); z-index: 500; padding: 1rem; overflow-y: auto; backdrop-filter: blur(2px); align-items: flex-end; justify-content: center; }
   .modal-bg.open { display: flex; }
   .modal { background: #fff; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 1.5rem 1.25rem; width: 100%; max-width: 600px; border: 1px solid var(--border); max-height: 92vh; overflow-y: auto; }
@@ -176,7 +182,6 @@
   @media (max-width: 680px) {
     .sidebar { display: none; }
     .bottom-nav { display: block; }
-    .mobile-sync-bar { display: flex; }
     .main { margin-left: 0; padding: 1.25rem 1rem calc(var(--bottom-nav-h) + 1.5rem); max-width: 100%; }
     .page-header h1 { font-size: 22px; }
     .modal-bg { align-items: flex-end; padding: 0; }
@@ -188,15 +193,16 @@
     .row-gap { gap: 6px; }
     .hide-mobile { display: none !important; }
     .card { padding: 1rem; }
+    .pantry-row { grid-template-columns: 1fr 52px 36px 44px 28px 28px; }
     .pantry-bar-wrap { display: none; }
+    #mobile-sync-footer { display: none !important; }
   }
   @media (min-width: 681px) {
     .bottom-nav { display: none; }
-    .mobile-sync-bar { display: none; }
-    #mobile-sync-footer { display: none !important; }
     .modal-bg { align-items: flex-start; padding: 2rem; }
     .modal { border-radius: var(--radius-lg); max-height: 85vh; }
     .modal-handle { display: none; }
+    #mobile-sync-footer { display: none !important; }
   }
 </style>
 </head>
@@ -303,10 +309,10 @@
           <h1>Shopping list</h1>
           <div class="row-gap">
             <button class="btn btn-sm" onclick="copyList()">Copy</button>
-            <button class="btn btn-primary btn-sm" onclick="markPurchased()">✓ Purchased</button>
+            <button class="btn btn-primary btn-sm" id="purchased-all-btn" onclick="markAllPurchased()">✓ All purchased</button>
           </div>
         </div>
-        <p>Based on this week's plan. Items with sufficient stock are excluded.</p>
+        <p>Based on this week's plan. Tick items off as you shop.</p>
       </div>
       <div id="shopping-wrap"></div>
     </div>
@@ -316,12 +322,12 @@
       <div class="page-header"><h1>Settings</h1></div>
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="sync-dot syncing" id="sync-dot-mobile"></span>
-          <span id="sync-label-mobile" style="font-size:13px;color:var(--ink-mid)">Connecting...</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="sync-dot syncing" id="sync-dot-mobile"></span>
+            <span id="sync-label-mobile" style="font-size:13px;color:var(--ink-mid)">Connecting...</span>
+          </div>
+          <button class="btn btn-sm" onclick="loadFromBin()">↻ Sync</button>
         </div>
-        <button class="btn btn-sm" onclick="loadFromBin()">↻ Sync</button>
-      </div>
         <div class="section-label">Meal planning</div>
         <div class="field">
           <label>Dinners per week</label>
@@ -416,7 +422,13 @@ Avoid: gluten in any form, meat, sugary drinks, white rice in large portions, pr
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const CATS = ['Fish & seafood','Produce','Dairy & eggs','Grains & pulses','Pantry','Frozen','Other'];
 
-let S = { recipes:[], pantry:[], weeks:{}, settings:{ mealsPerWeek:5, avoidWeeks:2 }, weekOffset:0 };
+let S = {
+  recipes:[], pantry:[], weeks:{},
+  settings:{ mealsPerWeek:5, avoidWeeks:2 },
+  weekOffset:0,
+  shoppingTicked:{},   // { weekKey: { normalisedIngName: true } }
+  shoppingRestocked:{} // { weekKey: true } — prevent double-restock
+};
 let saveTimer = null;
 let isMobile = () => window.innerWidth <= 680;
 
@@ -435,6 +447,23 @@ function getWeek(offset){
 }
 function fmt(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 
+// ── Fuzzy ingredient name normalisation ─────────────────────────────────────
+function normIngredient(name){
+  return name
+    .toLowerCase()
+    .replace(/gluten[-\s]free/g, 'glutenfree')  // gluten-free / gluten free → glutenfree
+    .replace(/[-]/g, ' ')                         // hyphens → spaces
+    .replace(/\s+/g, ' ')                         // collapse whitespace
+    .trim()
+    .replace(/s$/, '');                           // naive deplural: prawns→prawn, tomatoes→tomato
+}
+
+function findPantryItem(ingName){
+  const norm = normIngredient(ingName);
+  return S.pantry.find(p => normIngredient(p.name) === norm);
+}
+
+// ── Nav ──────────────────────────────────────────────────────────────────────
 function showTab(name, el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -442,7 +471,6 @@ function showTab(name, el){
   el.classList.add('active');
   onTabChange(name);
 }
-
 function showTabMobile(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.bottom-nav-item').forEach(n=>n.classList.remove('active'));
@@ -451,7 +479,6 @@ function showTabMobile(name){
   window.scrollTo(0,0);
   onTabChange(name);
 }
-
 function onTabChange(name){
   const genBtn=document.getElementById('mobile-generate-btn');
   const urlBtn=document.getElementById('mobile-url-btn');
@@ -459,19 +486,17 @@ function onTabChange(name){
   if(urlBtn) urlBtn.style.display=(name==='recipes'&&isMobile())?'block':'none';
   ({planner:renderPlanner,recipes:renderRecipes,pantry:renderPantry,shopping:renderShopping})[name]?.();
 }
-
 function changeWeek(d){ S.weekOffset+=d; renderPlanner(); }
 
+// ── Sync ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(state, sub){
   const states={ok:'Synced',error:'Sync failed',syncing:'Syncing...'};
   const dc=state==='ok'?'ok':state==='error'?'error':'syncing';
   document.getElementById('sync-dot').className='sync-dot '+dc;
   document.getElementById('sync-label-main').textContent=states[state]||'Connecting...';
   document.getElementById('sync-label-sub').textContent=sub?' · '+sub:'';
-  const mf=document.getElementById('mobile-sync-footer');
   document.getElementById('sync-dot-mobile').className='sync-dot '+dc;
   document.getElementById('sync-label-mobile').textContent=(states[state]||'Connecting...')+(sub?' · '+sub:'');
-  if(mf) mf.style.display=state==='syncing'?'block':'none';
 }
 
 async function loadFromBin(){
@@ -485,6 +510,8 @@ async function loadFromBin(){
     if(j.pantry)  S.pantry=j.pantry;
     if(j.weeks)   S.weeks=j.weeks;
     if(j.settings) S.settings={...S.settings,...j.settings};
+    if(j.shoppingTicked) S.shoppingTicked=j.shoppingTicked;
+    if(j.shoppingRestocked) S.shoppingRestocked=j.shoppingRestocked;
     applySettings(); renderAll();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
   } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
@@ -496,7 +523,10 @@ async function saveToBin(){
     const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}`,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({recipes:S.recipes,pantry:S.pantry,weeks:S.weeks,settings:S.settings})
+      body:JSON.stringify({
+        recipes:S.recipes, pantry:S.pantry, weeks:S.weeks, settings:S.settings,
+        shoppingTicked:S.shoppingTicked, shoppingRestocked:S.shoppingRestocked
+      })
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
@@ -504,7 +534,6 @@ async function saveToBin(){
 }
 
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToBin,800); }
-
 function applySettings(){
   const ms=document.getElementById('set-meals');
   const aw=document.getElementById('set-avoid');
@@ -512,18 +541,36 @@ function applySettings(){
   if(aw) aw.value=S.settings.avoidWeeks||2;
 }
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
-function clearAll(){ if(!confirm('Clear all data?')) return; S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0}; renderAll(); applySettings(); saveToBin(); }
-
-// ── Rating ──────────────────────────────────────────────────────────────────
-function setRating(id, rating){
-  const r=S.recipes.find(r=>r.id===id); if(!r) return;
-  // Toggle off if clicking same rating
-  r.rating = r.rating===rating ? null : rating;
-  renderRecipes(); scheduleSave();
-  toast(r.rating===1?'👍 Marked as favourite':r.rating===-1?'👎 Marked as disliked':'Rating cleared');
+function clearAll(){
+  if(!confirm('Clear all data?')) return;
+  S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0,shoppingTicked:{},shoppingRestocked:{}};
+  renderAll(); applySettings(); saveToBin();
 }
 
-// ── Render planner ───────────────────────────────────────────────────────────
+// ── Build shopping list items ────────────────────────────────────────────────
+function buildShoppingList(weekKey){
+  const week=S.weeks[weekKey]||{};
+  const needed={};
+  Object.values(week).forEach(meal=>{
+    const r=S.recipes.find(r=>r.id===meal.recipeId);
+    if(!r||!r.ingredients) return;
+    r.ingredients.forEach(ing=>{
+      const pi=findPantryItem(ing.name);
+      let buyQty=0, buyUnit=ing.unit;
+      if(pi){
+        if(pi.currentQty<pi.totalQty*0.15||pi.currentQty<ing.qty){ buyQty=pi.totalQty; buyUnit=pi.unit; }
+      } else { buyQty=ing.qty; buyUnit=ing.unit; }
+      if(buyQty>0){
+        const k=normIngredient(ing.name);
+        if(needed[k]) needed[k].qty+=buyQty;
+        else needed[k]={name:ing.name,qty:buyQty,unit:buyUnit,cat:ing.category||'Other',key:k};
+      }
+    });
+  });
+  return Object.values(needed);
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
 function renderPlanner(){
   const {key,start,end}=getWeek(S.weekOffset);
   const lbl=S.weekOffset===0?'This week':S.weekOffset===-1?'Last week':S.weekOffset===1?'Next week':fmt(start)+' week';
@@ -537,17 +584,16 @@ function renderPlanner(){
   const hasMeals=Object.keys(week).length>0;
   empty.style.display=hasMeals?'none':'';
   if(genBtn) genBtn.style.display=isMobile()?'block':'none';
-  // Reroll icon SVG (refresh arrows, no emoji)
   const rerollIcon=`<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`;
   slots.innerHTML=hasMeals?DAYS.slice(0,mpw).map(day=>{
     const meal=week[day];
     const r=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
     if(!r) return `<div class="meal-slot empty-slot"><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>`;
-    const ratingLabel=r.rating===1?'👍':r.rating===-1?'👎':'';
+    const ratingLabel=r.rating===1?' 👍':r.rating===-1?' 👎':'';
     return `<div class="meal-slot"><div class="row-between">
       <div style="min-width:0;flex:1">
         <div class="day-label">${day}</div>
-        <div class="meal-name">${r.name} ${ratingLabel}</div>
+        <div class="meal-name">${r.name}${ratingLabel}</div>
         <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
       </div>
       <div class="meal-slot-actions">
@@ -558,43 +604,6 @@ function renderPlanner(){
   }).join(''):'';
 }
 
-// ── Reroll ───────────────────────────────────────────────────────────────────
-async function rerollMeal(weekKey, day){
-  const btn=document.getElementById('reroll-'+day);
-  if(btn){ btn.classList.add('spinning'); btn.disabled=true; }
-  const week=S.weeks[weekKey]||{};
-  // IDs already planned this week (to avoid repeats)
-  const usedIds=Object.values(week).map(m=>m.recipeId).filter(Boolean);
-  // IDs used in recent weeks
-  const recentNames=[];
-  for(let i=1;i<=(S.settings.avoidWeeks||2);i++){
-    const wk=getWeek(S.weekOffset-i);
-    Object.values(S.weeks[wk.key]||{}).forEach(m=>{
-      const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recentNames.push(r.name);
-    });
-  }
-  const available=S.recipes.filter(r=>!usedIds.includes(r.id));
-  if(available.length===0){ toast('No other recipes available'); if(btn){btn.classList.remove('spinning');btn.disabled=false;} return; }
-  const prompt=`${PCOS}\n\nAvailable recipes to choose from (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([d,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1 (thumbs up). Pick a different meal from what was previously on ${day}.\n\nReturn ONLY a JSON object, no markdown:\n{"recipeId":"..."}`;
-  try {
-    const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,messages:[{role:'user',content:prompt}]})});
-    if(!res.ok) throw new Error('API error');
-    const data=await res.json();
-    const raw=data.content.map(b=>b.text||'').join('');
-    const match=raw.match(/\{[\s\S]*?\}/);
-    if(!match) throw new Error('No response');
-    const result=JSON.parse(match[0]);
-    if(result.recipeId){
-      S.weeks[weekKey][day]={recipeId:result.recipeId};
-      renderPlanner(); scheduleSave();
-      const newRecipe=S.recipes.find(r=>r.id===result.recipeId);
-      toast(newRecipe?`${day}: ${newRecipe.name}`:'Meal updated');
-    }
-  } catch(e){ toast('Could not reroll: '+e.message); }
-  finally { if(btn){btn.classList.remove('spinning');btn.disabled=false;} }
-}
-
-// ── Render recipes ───────────────────────────────────────────────────────────
 function renderRecipes(){
   const el=document.getElementById('recipe-list');
   const urlBtn=document.getElementById('mobile-url-btn');
@@ -603,7 +612,6 @@ function renderRecipes(){
     el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.</p></div>';
     return;
   }
-  // Sort: thumbs up first, unrated next, thumbs down last
   const sorted=[...S.recipes].sort((a,b)=>(b.rating||0)-(a.rating||0));
   el.innerHTML=sorted.map(r=>{
     const upActive=r.rating===1?'active':'';
@@ -641,16 +649,18 @@ function renderPantry(){
     const pct=Math.min(100,Math.round((item.currentQty/item.totalQty)*100));
     const col=pct>40?'#6B7B5E':pct>15?'#C4A040':'#C4704A';
     const b=pct>40?'badge-sage':pct>15?'badge-terra':'';
+    const qtyDisplay=item.unit==='g'||item.unit==='ml'?Math.round(item.currentQty):item.currentQty.toFixed(1);
     return `<div class="pantry-row">
-      <div class="pantry-name">${item.name}</div>
-      <div class="pantry-qty">${item.unit==='g'||item.unit==='ml'?Math.round(item.currentQty):item.currentQty.toFixed(1)}</div>
+      <div class="pantry-name" title="${item.name}">${item.name}</div>
+      <div class="pantry-qty">${qtyDisplay}</div>
       <div class="pantry-unit">${item.unit}</div>
       <div class="pantry-bar-wrap">
         <div class="pantry-bar"><div class="pantry-bar-fill" style="width:${pct}%;background:${col}"></div></div>
         <div class="pantry-pct">${pct}%</div>
       </div>
-      <span class="badge ${b}" style="flex-shrink:0;${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'!'}</span>
-      <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')">✕</button>
+      <span class="badge ${b}" style="${!b?'background:#fdf0f0;color:#b83030':''}">${pct>40?'ok':pct>15?'low':'!'}</span>
+      <button class="btn btn-sm btn-ghost" onclick="editPantryItem('${item.id}')" title="Edit">✎</button>
+      <button class="btn btn-sm btn-danger" onclick="deletePantry('${item.id}')" title="Remove">✕</button>
     </div>`;
   }).join('');
 }
@@ -658,40 +668,77 @@ function renderPantry(){
 function renderShopping(){
   const el=document.getElementById('shopping-wrap');
   const {key}=getWeek(S.weekOffset);
-  const week=S.weeks[key]||{};
-  const needed={};
-  Object.values(week).forEach(meal=>{
-    const r=S.recipes.find(r=>r.id===meal.recipeId);
-    if(!r||!r.ingredients) return;
-    r.ingredients.forEach(ing=>{
-      const pi=S.pantry.find(p=>p.name.toLowerCase()===ing.name.toLowerCase());
-      let buyQty=0, buyUnit=ing.unit;
-      if(pi){ if(pi.currentQty<pi.totalQty*0.15||pi.currentQty<ing.qty){ buyQty=pi.totalQty; buyUnit=pi.unit; } }
-      else { buyQty=ing.qty; buyUnit=ing.unit; }
-      if(buyQty>0){
-        const k=ing.name.toLowerCase();
-        if(needed[k]) needed[k].qty+=buyQty;
-        else needed[k]={name:ing.name,qty:buyQty,unit:buyUnit,cat:ing.category||'Other'};
-      }
-    });
-  });
-  const items=Object.values(needed);
+  const items=buildShoppingList(key);
+  const ticked=S.shoppingTicked[key]||{};
+  const restocked=S.shoppingRestocked[key]||false;
+  const allBtn=document.getElementById('purchased-all-btn');
+
   if(!items.length){
     el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><p>No shopping needed yet.<br>Generate a plan first.</p></div>';
     return;
   }
+
+  // Disable "All purchased" if already restocked
+  if(allBtn) allBtn.disabled=restocked;
+  if(allBtn) allBtn.title=restocked?'Already restocked this week':'';
+
   const byCat={};
   items.forEach(i=>{ if(!byCat[i.cat]) byCat[i.cat]=[]; byCat[i.cat].push(i); });
   const order=[...CATS.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!CATS.includes(c))];
+
   el.innerHTML='<div class="card">'+order.map(cat=>`
     <div class="shop-cat">${cat}</div>
-    ${byCat[cat].map(i=>`<div class="shop-row"><span>${i.name}</span><span class="shop-qty">${i.qty%1===0?i.qty:i.qty.toFixed(1)} ${i.unit}</span></div>`).join('')}
+    ${byCat[cat].map(i=>{
+      const isTicked=!!ticked[i.key];
+      return `<div class="shop-row${isTicked?' purchased':''}" id="shoprow-${i.key.replace(/\s/g,'_')}">
+        <span class="shop-name">${i.name}</span>
+        <span class="shop-qty">${i.qty%1===0?i.qty:i.qty.toFixed(1)} ${i.unit}</span>
+        <button class="shop-tick${isTicked?' ticked':''}" onclick="tickItem('${key}','${i.key}')" title="${isTicked?'Unmark':'Mark as purchased'}">${isTicked?'✓':''}</button>
+      </div>`;
+    }).join('')}
   `).join('')+'</div>';
 }
 
 function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderShopping(); }
 
-// ── Generate full plan ───────────────────────────────────────────────────────
+// ── Shopping actions ─────────────────────────────────────────────────────────
+function tickItem(weekKey, ingKey){
+  if(!S.shoppingTicked[weekKey]) S.shoppingTicked[weekKey]={};
+  const wasTicked=S.shoppingTicked[weekKey][ingKey];
+  if(wasTicked){
+    delete S.shoppingTicked[weekKey][ingKey];
+  } else {
+    S.shoppingTicked[weekKey][ingKey]=true;
+    // Restock matching pantry item
+    S.pantry.forEach(p=>{
+      if(normIngredient(p.name)===ingKey) p.currentQty=p.totalQty;
+    });
+    renderPantry();
+  }
+  renderShopping(); scheduleSave();
+}
+
+function markAllPurchased(){
+  const {key}=getWeek(S.weekOffset);
+  if(S.shoppingRestocked[key]){
+    toast('Already restocked this week');
+    return;
+  }
+  const items=buildShoppingList(key);
+  if(!S.shoppingTicked[key]) S.shoppingTicked[key]={};
+  items.forEach(i=>{
+    S.shoppingTicked[key][i.key]=true;
+    // Restock pantry for each item
+    S.pantry.forEach(p=>{
+      if(normIngredient(p.name)===i.key) p.currentQty=p.totalQty;
+    });
+  });
+  S.shoppingRestocked[key]=true;
+  renderShopping(); renderPantry(); scheduleSave();
+  toast('Pantry restocked ✓');
+}
+
+// ── Generate plan ────────────────────────────────────────────────────────────
 async function generatePlan(){
   if(S.recipes.length<2){ alert('Add at least 2 recipes first.'); return; }
   const {key}=getWeek(S.weekOffset);
@@ -717,6 +764,9 @@ async function generatePlan(){
     if(!match) throw new Error('No plan data found');
     const plan=JSON.parse(match[0]);
     S.weeks[key]={};
+    // Reset ticked/restocked for this week when new plan generated
+    S.shoppingTicked[key]={};
+    S.shoppingRestocked[key]=false;
     plan.forEach(item=>{ if(item.day&&item.recipeId) S.weeks[key][item.day]={recipeId:item.recipeId}; });
     deductPantry(key);
     st.style.display='none';
@@ -730,15 +780,56 @@ function deductPantry(weekKey){
     const r=S.recipes.find(r=>r.id===meal.recipeId);
     if(!r||!r.ingredients) return;
     r.ingredients.forEach(ing=>{
-      const pi=S.pantry.find(p=>p.name.toLowerCase()===ing.name.toLowerCase());
+      const pi=findPantryItem(ing.name);
       if(pi) pi.currentQty=Math.max(0,pi.currentQty-ing.qty);
     });
   });
 }
 
+// ── Reroll ───────────────────────────────────────────────────────────────────
+async function rerollMeal(weekKey, day){
+  const btn=document.getElementById('reroll-'+day);
+  if(btn){ btn.classList.add('spinning'); btn.disabled=true; }
+  const week=S.weeks[weekKey]||{};
+  const usedIds=Object.values(week).map(m=>m.recipeId).filter(Boolean);
+  const recentNames=[];
+  for(let i=1;i<=(S.settings.avoidWeeks||2);i++){
+    const wk=getWeek(S.weekOffset-i);
+    Object.values(S.weeks[wk.key]||{}).forEach(m=>{
+      const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recentNames.push(r.name);
+    });
+  }
+  const available=S.recipes.filter(r=>!usedIds.includes(r.id));
+  if(available.length===0){ toast('No other recipes available'); if(btn){btn.classList.remove('spinning');btn.disabled=false;} return; }
+  const prompt=`${PCOS}\n\nAvailable recipes to choose from (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1. Return ONLY a JSON object, no markdown:\n{"recipeId":"..."}`;
+  try {
+    const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok) throw new Error('API error');
+    const data=await res.json();
+    const raw=data.content.map(b=>b.text||'').join('');
+    const match=raw.match(/\{[\s\S]*?\}/);
+    if(!match) throw new Error('No response');
+    const result=JSON.parse(match[0]);
+    if(result.recipeId){
+      S.weeks[weekKey][day]={recipeId:result.recipeId};
+      renderPlanner(); scheduleSave();
+      const nr=S.recipes.find(r=>r.id===result.recipeId);
+      toast(nr?`${day}: ${nr.name}`:'Meal updated');
+    }
+  } catch(e){ toast('Could not reroll: '+e.message); }
+  finally { if(btn){btn.classList.remove('spinning');btn.disabled=false;} }
+}
+
 function removeMeal(wk,day){ if(S.weeks[wk]) delete S.weeks[wk][day]; renderPlanner(); scheduleSave(); }
 
-// ── Modals ───────────────────────────────────────────────────────────────────
+// ── Rating ────────────────────────────────────────────────────────────────────
+function setRating(id, rating){
+  const r=S.recipes.find(r=>r.id===id); if(!r) return;
+  r.rating = r.rating===rating ? null : rating;
+  renderRecipes(); scheduleSave();
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────────
 function openModal(type){
   const title=document.getElementById('modal-title');
   const body=document.getElementById('modal-body');
@@ -786,15 +877,15 @@ function urlFormHTML(){
   </div>`;
 }
 
-function pantryFormHTML(){
-  return `<div class="field"><label>Item name</label><input type="text" id="p-name" placeholder="e.g. Soy sauce"/></div>
+function pantryFormHTML(pf={}){
+  return `<div class="field"><label>Item name</label><input type="text" id="p-name" value="${pf.name||''}" placeholder="e.g. Soy sauce"/></div>
   <div style="display:flex;gap:10px">
-    <div class="field" style="flex:1"><label>Purchase size</label><input type="number" id="p-total" placeholder="1000" step="any" inputmode="decimal"/></div>
-    <div class="field" style="flex:1"><label>Unit</label><input type="text" id="p-unit" placeholder="ml, g, count"/></div>
+    <div class="field" style="flex:1"><label>Purchase size</label><input type="number" id="p-total" value="${pf.totalQty||''}" placeholder="1000" step="any" inputmode="decimal"/></div>
+    <div class="field" style="flex:1"><label>Unit</label><input type="text" id="p-unit" value="${pf.unit||''}" placeholder="ml, g, count"/></div>
   </div>
-  <div class="field"><label>Current stock (blank = full)</label><input type="number" id="p-cur" placeholder="Leave blank if new" step="any" inputmode="decimal"/></div>
+  <div class="field"><label>Current stock</label><input type="number" id="p-cur" value="${pf.currentQty||''}" placeholder="Leave blank if full" step="any" inputmode="decimal"/></div>
   <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
-    <button class="btn btn-primary btn-full" onclick="savePantry()">Add to pantry</button>
+    <button class="btn btn-primary btn-full" id="p-save-btn">${pf.id?'Update item':'Add to pantry'}</button>
     <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
   </div>`;
 }
@@ -875,30 +966,30 @@ function savePantry(){
   closeModal(); renderPantry(); scheduleSave(); toast('Pantry item added ✓');
 }
 
+function editPantryItem(id){
+  const item=S.pantry.find(p=>p.id===id); if(!item) return;
+  document.getElementById('modal-title').textContent='Edit pantry item';
+  document.getElementById('modal-body').innerHTML=pantryFormHTML(item);
+  document.getElementById('p-save-btn').onclick=function(){
+    const name=document.getElementById('p-name').value.trim();
+    const total=parseFloat(document.getElementById('p-total').value);
+    const unit=document.getElementById('p-unit').value.trim();
+    const cur=parseFloat(document.getElementById('p-cur').value);
+    if(!name||isNaN(total)||!unit){ alert('Fill in name, size, and unit.'); return; }
+    const idx=S.pantry.findIndex(p=>p.id===id);
+    S.pantry[idx]={...S.pantry[idx],name,totalQty:total,unit,currentQty:isNaN(cur)?S.pantry[idx].currentQty:cur};
+    closeModal(); renderPantry(); scheduleSave(); toast('Pantry item updated ✓');
+  };
+  document.getElementById('modal-bg').classList.add('open');
+}
+
 function deletePantry(id){ if(!confirm('Remove?')) return; S.pantry=S.pantry.filter(p=>p.id!==id); renderPantry(); scheduleSave(); }
 
 function copyList(){
   const {key}=getWeek(S.weekOffset);
-  const lines=[], seen=new Set();
-  Object.values(S.weeks[key]||{}).forEach(meal=>{
-    const r=S.recipes.find(r=>r.id===meal.recipeId);
-    if(!r||!r.ingredients) return;
-    r.ingredients.forEach(i=>{ if(!seen.has(i.name.toLowerCase())){ seen.add(i.name.toLowerCase()); lines.push(`${i.name} — ${i.qty} ${i.unit}`); } });
-  });
-  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('Copied ✓'));
-}
-
-function markPurchased(){
-  S.pantry.forEach(item=>{ if(item.currentQty<item.totalQty*0.15) item.currentQty=item.totalQty; });
-  renderPantry(); renderShopping(); scheduleSave(); toast('Pantry restocked ✓');
+  const items=buildShoppingList(key);
+  navigator.clipboard.writeText(items.map(i=>`${i.name} — ${i.qty} ${i.unit}`).join('\n')).then(()=>toast('Copied ✓'));
 }
 
 applySettings(); renderAll(); loadFromBin();
 </script>
-
-<div id="mobile-sync-footer" style="display:none;position:fixed;bottom:calc(var(--bottom-nav-h) + 6px);left:50%;transform:translateX(-50%);background:rgba(28,28,26,0.75);color:rgba(255,255,255,0.7);font-size:11px;padding:4px 12px;border-radius:99px;pointer-events:none;z-index:99;white-space:nowrap">
-  <span class="sync-dot syncing" id="sync-dot-mobile" style="width:5px;height:5px;margin-right:5px"></span><span id="sync-label-mobile">Syncing...</span>
-</div>
-  
-</body>
-</html>
