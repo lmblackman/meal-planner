@@ -309,7 +309,8 @@
           <h1>Shopping list</h1>
           <div class="row-gap">
             <button class="btn btn-sm" onclick="copyList()">Copy</button>
-            <button class="btn btn-primary btn-sm" id="purchased-all-btn" onclick="markAllPurchased()">✓ All purchased</button>
+            <button class="btn btn-sm" id="purchased-ticked-btn" onclick="markTickedPurchased()">✓ Purchase ticked</button>
+            <button class="btn btn-primary btn-sm" id="purchased-all-btn" onclick="markAllPurchased()">✓ Purchase all</button>
           </div>
         </div>
         <p>Based on this week's plan. Tick items off as you shop.</p>
@@ -704,20 +705,27 @@ function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderSh
 // ── Shopping actions ─────────────────────────────────────────────────────────
 function tickItem(weekKey, ingKey){
   if(!S.shoppingTicked[weekKey]) S.shoppingTicked[weekKey]={};
-  const wasTicked=S.shoppingTicked[weekKey][ingKey];
-  if(wasTicked){
+  if(S.shoppingTicked[weekKey][ingKey]){
     delete S.shoppingTicked[weekKey][ingKey];
   } else {
     S.shoppingTicked[weekKey][ingKey]=true;
-    // Restock matching pantry item
-    S.pantry.forEach(p=>{
-      if(normIngredient(p.name)===ingKey) p.currentQty=p.totalQty;
-    });
-    renderPantry();
   }
   renderShopping(); scheduleSave();
 }
 
+  function markTickedPurchased(){
+  const {key}=getWeek(S.weekOffset);
+  const ticked=S.shoppingTicked[key]||{};
+  const tickedKeys=Object.keys(ticked).filter(k=>ticked[k]);
+  if(!tickedKeys.length){ toast('No items ticked'); return; }
+  tickedKeys.forEach(ingKey=>{
+    S.pantry.forEach(p=>{
+      if(normIngredient(p.name)===ingKey) p.currentQty=p.totalQty;
+    });
+  });
+  renderPantry(); renderShopping(); scheduleSave();
+  toast(`${tickedKeys.length} item${tickedKeys.length>1?'s':''} restocked ✓`);
+}
 function markAllPurchased(){
   const {key}=getWeek(S.weekOffset);
   if(S.shoppingRestocked[key]){
