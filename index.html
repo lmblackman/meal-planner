@@ -309,8 +309,8 @@
           <h1>Shopping list</h1>
           <div class="row-gap">
             <button class="btn btn-sm" onclick="copyList()">Copy</button>
-            <button class="btn btn-sm" id="purchased-ticked-btn" onclick="markTickedPurchased()">✓ Purchase ticked</button>
-            <button class="btn btn-primary btn-sm" id="purchased-all-btn" onclick="markAllPurchased()">✓ Purchase all</button>
+            <button class="btn btn-sm" id="purchased-ticked-btn" disabled onclick="markTickedPurchased()">✓ Purchase ticked</button>
+            <button class="btn btn-primary btn-sm" id="purchased-all-btn" disabled onclick="markAllPurchased()">✓ Purchase all</button>
           </div>
         </div>
         <p>Based on this week's plan. Tick items off as you shop.</p>
@@ -515,6 +515,9 @@ async function loadFromBin(){
     if(j.shoppingRestocked) S.shoppingRestocked=j.shoppingRestocked;
     applySettings(); renderAll();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
+    ['purchased-ticked-btn','purchased-all-btn'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.disabled=false;
+});
   } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
 }
 
@@ -714,6 +717,7 @@ function tickItem(weekKey, ingKey){
 }
 
   function markTickedPurchased(){
+  if(!S.pantry.length){ toast('Still syncing — please wait a moment'); return; }
   const {key}=getWeek(S.weekOffset);
   const ticked=S.shoppingTicked[key]||{};
   const tickedKeys=Object.keys(ticked).filter(k=>ticked[k]);
@@ -727,6 +731,7 @@ function tickItem(weekKey, ingKey){
   toast(`${tickedKeys.length} item${tickedKeys.length>1?'s':''} restocked ✓`);
 }
 function markAllPurchased(){
+  if(!S.pantry.length){ toast('Still syncing — please wait a moment'); return; }
   const {key}=getWeek(S.weekOffset);
   if(S.shoppingRestocked[key]){
     toast('Already restocked this week');
