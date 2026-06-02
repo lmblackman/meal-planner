@@ -107,13 +107,20 @@
   .week-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 400; }
   .week-sub { font-size: 13px; color: var(--ink-light); }
 
-  .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; }
+  /* Meal slots */
+  .meal-slot { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; transition: opacity 0.3s, border-color 0.3s; }
+  .meal-slot.cooked { opacity: 0.45; border-style: dashed; }
   .meal-slot .day-label { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; }
   .meal-slot .meal-name { font-family: 'Lora', serif; font-size: 17px; font-weight: 400; }
   .meal-slot .meal-meta { font-size: 12px; color: var(--ink-mid); margin-top: 3px; }
   .meal-slot.empty-slot { border-style: dashed; background: transparent; }
   .meal-slot.empty-slot .meal-name { color: var(--ink-light); font-family: 'DM Sans', sans-serif; font-size: 14px; font-style: italic; }
-  .meal-slot-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; }
+  .meal-slot-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; align-items: center; }
+
+  /* Cooked toggle button */
+  .btn-cooked { padding: 5px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; color: var(--ink-mid); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+  .btn-cooked:hover { background: var(--sage-light); color: var(--sage); border-color: var(--sage); }
+  .btn-cooked.is-cooked { background: var(--sage-light); color: var(--sage); border-color: var(--sage); }
 
   .btn-reroll { padding: 5px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; color: var(--ink-mid); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
   .btn-reroll:hover { background: var(--cream-dark); color: var(--ink); }
@@ -130,7 +137,7 @@
   .rating-btn.active { opacity: 1; }
   .rating-btn:active { transform: scale(1.2); }
 
-  /* Pantry — fixed column layout */
+  /* Pantry grid layout */
   .pantry-row {
     display: grid;
     grid-template-columns: 1fr 60px 40px 160px 52px 28px 28px;
@@ -148,7 +155,6 @@
   .pantry-bar-fill { height: 100%; border-radius: 99px; }
   .pantry-pct { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
 
-  /* Shopping list */
   .shop-cat { font-size: 11px; font-weight: 500; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.07em; margin: 1.25rem 0 6px; }
   .shop-cat:first-child { margin-top: 0; }
   .shop-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; gap: 8px; }
@@ -195,14 +201,12 @@
     .card { padding: 1rem; }
     .pantry-row { grid-template-columns: 1fr 52px 36px 44px 28px 28px; }
     .pantry-bar-wrap { display: none; }
-    #mobile-sync-footer { display: none !important; }
   }
   @media (min-width: 681px) {
     .bottom-nav { display: none; }
     .modal-bg { align-items: flex-start; padding: 2rem; }
     .modal { border-radius: var(--radius-lg); max-height: 85vh; }
     .modal-handle { display: none; }
-    #mobile-sync-footer { display: none !important; }
   }
 </style>
 </head>
@@ -295,7 +299,7 @@
           <h1>Pantry</h1>
           <button class="btn btn-primary btn-sm" onclick="openModal('pantry')">+ Add</button>
         </div>
-        <p>Stock is deducted when a plan is generated. Items appear on the shopping list below 15%.</p>
+        <p>Stock is deducted when you mark a meal as cooked.</p>
       </div>
       <div class="card" style="padding:0 1rem">
         <div id="pantry-list"></div>
@@ -427,8 +431,9 @@ let S = {
   recipes:[], pantry:[], weeks:{},
   settings:{ mealsPerWeek:5, avoidWeeks:2 },
   weekOffset:0,
-  shoppingTicked:{},   // { weekKey: { normalisedIngName: true } }
-  shoppingRestocked:{} // { weekKey: true } — prevent double-restock
+  shoppingTicked:{},
+  shoppingRestocked:{},
+  cookedMeals:{}  // { weekKey: { day: true } }
 };
 let saveTimer = null;
 let isMobile = () => window.innerWidth <= 680;
@@ -448,20 +453,19 @@ function getWeek(offset){
 }
 function fmt(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 
-// ── Fuzzy ingredient name normalisation ─────────────────────────────────────
+// ── Fuzzy ingredient matching ────────────────────────────────────────────────
 function normIngredient(name){
   return name
     .toLowerCase()
-    .replace(/gluten[-\s]free/g, 'glutenfree')  // gluten-free / gluten free → glutenfree
-    .replace(/[-]/g, ' ')                         // hyphens → spaces
-    .replace(/\s+/g, ' ')                         // collapse whitespace
+    .replace(/gluten[-\s]free/g,'glutenfree')
+    .replace(/[-]/g,' ')
+    .replace(/\s+/g,' ')
     .trim()
-    .replace(/s$/, '');                           // naive deplural: prawns→prawn, tomatoes→tomato
+    .replace(/s$/, '');
 }
-
 function findPantryItem(ingName){
-  const norm = normIngredient(ingName);
-  return S.pantry.find(p => normIngredient(p.name) === norm);
+  const norm=normIngredient(ingName);
+  return S.pantry.find(p=>normIngredient(p.name)===norm);
 }
 
 // ── Nav ──────────────────────────────────────────────────────────────────────
@@ -513,11 +517,12 @@ async function loadFromBin(){
     if(j.settings) S.settings={...S.settings,...j.settings};
     if(j.shoppingTicked) S.shoppingTicked=j.shoppingTicked;
     if(j.shoppingRestocked) S.shoppingRestocked=j.shoppingRestocked;
+    if(j.cookedMeals) S.cookedMeals=j.cookedMeals;
     applySettings(); renderAll();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
     ['purchased-ticked-btn','purchased-all-btn'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.disabled=false;
-});
+    });
   } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
 }
 
@@ -529,7 +534,8 @@ async function saveToBin(){
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
       body:JSON.stringify({
         recipes:S.recipes, pantry:S.pantry, weeks:S.weeks, settings:S.settings,
-        shoppingTicked:S.shoppingTicked, shoppingRestocked:S.shoppingRestocked
+        shoppingTicked:S.shoppingTicked, shoppingRestocked:S.shoppingRestocked,
+        cookedMeals:S.cookedMeals
       })
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -547,11 +553,62 @@ function applySettings(){
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
 function clearAll(){
   if(!confirm('Clear all data?')) return;
-  S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0,shoppingTicked:{},shoppingRestocked:{}};
+  S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0,shoppingTicked:{},shoppingRestocked:{},cookedMeals:{}};
   renderAll(); applySettings(); saveToBin();
 }
 
-// ── Build shopping list items ────────────────────────────────────────────────
+// ── Cooked meals ─────────────────────────────────────────────────────────────
+function toggleCooked(weekKey, day){
+  if(!S.cookedMeals[weekKey]) S.cookedMeals[weekKey]={};
+  const wasCooked=S.cookedMeals[weekKey][day];
+  const meal=S.weeks[weekKey]&&S.weeks[weekKey][day];
+  const recipe=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
+
+  if(wasCooked){
+    // Un-mark cooked: add ingredients back to pantry
+    if(recipe&&recipe.ingredients){
+      recipe.ingredients.forEach(ing=>{
+        const pi=findPantryItem(ing.name);
+        if(pi) pi.currentQty=Math.min(pi.totalQty, pi.currentQty+ing.qty);
+      });
+    }
+    delete S.cookedMeals[weekKey][day];
+    renderPantry();
+    renderPlanner();
+    scheduleSave();
+  } else {
+    // Mark cooked: deduct ingredients from pantry
+    if(recipe&&recipe.ingredients){
+      recipe.ingredients.forEach(ing=>{
+        const pi=findPantryItem(ing.name);
+        if(pi) pi.currentQty=Math.max(0, pi.currentQty-ing.qty);
+      });
+    }
+    S.cookedMeals[weekKey][day]=true;
+    renderPantry();
+    renderPlanner();
+    scheduleSave();
+
+    // Check if all planned meals are now cooked
+    const week=S.weeks[weekKey]||{};
+    const plannedDays=Object.keys(week);
+    const cookedDays=Object.keys(S.cookedMeals[weekKey]||{});
+    const allCooked=plannedDays.length>0&&plannedDays.every(d=>S.cookedMeals[weekKey][d]);
+    if(allCooked){
+      setTimeout(()=>{
+        if(confirm('All meals cooked — clear this week\'s plan?')){
+          S.weeks[weekKey]={};
+          S.cookedMeals[weekKey]={};
+          S.shoppingTicked[weekKey]={};
+          S.shoppingRestocked[weekKey]=false;
+          renderPlanner(); renderShopping(); scheduleSave();
+        }
+      }, 300);
+    }
+  }
+}
+
+// ── Shopping list builder ────────────────────────────────────────────────────
 function buildShoppingList(weekKey){
   const week=S.weeks[weekKey]||{};
   const needed={};
@@ -574,7 +631,7 @@ function buildShoppingList(weekKey){
   return Object.values(needed);
 }
 
-// ── Render ───────────────────────────────────────────────────────────────────
+// ── Render ────────────────────────────────────────────────────────────────────
 function renderPlanner(){
   const {key,start,end}=getWeek(S.weekOffset);
   const lbl=S.weekOffset===0?'This week':S.weekOffset===-1?'Last week':S.weekOffset===1?'Next week':fmt(start)+' week';
@@ -582,6 +639,7 @@ function renderPlanner(){
   document.getElementById('week-sub').textContent=fmt(start)+' – '+fmt(end);
   const week=S.weeks[key]||{};
   const mpw=S.settings.mealsPerWeek||5;
+  const cooked=S.cookedMeals[key]||{};
   const slots=document.getElementById('planner-slots');
   const empty=document.getElementById('planner-empty');
   const genBtn=document.getElementById('mobile-generate-btn');
@@ -593,18 +651,22 @@ function renderPlanner(){
     const meal=week[day];
     const r=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
     if(!r) return `<div class="meal-slot empty-slot"><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>`;
+    const isCooked=!!cooked[day];
     const ratingLabel=r.rating===1?' 👍':r.rating===-1?' 👎':'';
-    return `<div class="meal-slot"><div class="row-between">
-      <div style="min-width:0;flex:1">
-        <div class="day-label">${day}</div>
-        <div class="meal-name">${r.name}${ratingLabel}</div>
-        <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
+    return `<div class="meal-slot${isCooked?' cooked':''}">
+      <div class="row-between">
+        <div style="min-width:0;flex:1">
+          <div class="day-label">${day}${isCooked?' · <span style="color:var(--sage);font-weight:500">Cooked</span>':''}</div>
+          <div class="meal-name">${r.name}${ratingLabel}</div>
+          <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
+        </div>
+        <div class="meal-slot-actions">
+          <button class="btn-cooked${isCooked?' is-cooked':''}" onclick="toggleCooked('${key}','${day}')" title="${isCooked?'Mark as uncooked':'Mark as cooked'}">${isCooked?'✓ Cooked':'Mark cooked'}</button>
+          <button class="btn-reroll" id="reroll-${day}" onclick="rerollMeal('${key}','${day}')" title="Try a different meal">${rerollIcon} New</button>
+          <button class="btn btn-sm btn-danger" style="padding:5px 8px;text-align:center" onclick="removeMeal('${key}','${day}')">✕</button>
+        </div>
       </div>
-      <div class="meal-slot-actions">
-        <button class="btn-reroll" id="reroll-${day}" onclick="rerollMeal('${key}','${day}')" title="Try a different meal">${rerollIcon} New</button>
-        <button class="btn btn-sm btn-danger" onclick="removeMeal('${key}','${day}')">✕</button>
-      </div>
-    </div></div>`;
+    </div>`;
   }).join(''):'';
 }
 
@@ -635,7 +697,7 @@ function renderRecipes(){
           <div class="row-gap" style="gap:4px">
             <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
             <button class="btn btn-sm btn-ghost" onclick="editRecipe('${r.id}')">Edit</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${r.id}')">✕</button>
+            <button class="btn btn-sm btn-danger" style="padding:5px 8px;text-align:center" onclick="deleteRecipe('${r.id}')">✕</button>
           </div>
         </div>
       </div>
@@ -676,20 +738,14 @@ function renderShopping(){
   const ticked=S.shoppingTicked[key]||{};
   const restocked=S.shoppingRestocked[key]||false;
   const allBtn=document.getElementById('purchased-all-btn');
-
+  if(allBtn){ allBtn.disabled=restocked; allBtn.title=restocked?'Already restocked this week':''; }
   if(!items.length){
     el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><p>No shopping needed yet.<br>Generate a plan first.</p></div>';
     return;
   }
-
-  // Disable "All purchased" if already restocked
-  if(allBtn) allBtn.disabled=restocked;
-  if(allBtn) allBtn.title=restocked?'Already restocked this week':'';
-
   const byCat={};
   items.forEach(i=>{ if(!byCat[i.cat]) byCat[i.cat]=[]; byCat[i.cat].push(i); });
   const order=[...CATS.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!CATS.includes(c))];
-
   el.innerHTML='<div class="card">'+order.map(cat=>`
     <div class="shop-cat">${cat}</div>
     ${byCat[cat].map(i=>{
@@ -705,7 +761,7 @@ function renderShopping(){
 
 function renderAll(){ renderPlanner(); renderRecipes(); renderPantry(); renderShopping(); }
 
-// ── Shopping actions ─────────────────────────────────────────────────────────
+// ── Shopping actions ──────────────────────────────────────────────────────────
 function tickItem(weekKey, ingKey){
   if(!S.shoppingTicked[weekKey]) S.shoppingTicked[weekKey]={};
   if(S.shoppingTicked[weekKey][ingKey]){
@@ -716,47 +772,50 @@ function tickItem(weekKey, ingKey){
   renderShopping(); scheduleSave();
 }
 
-  function markTickedPurchased(){
-  if(!S.pantry.length){ toast('Still syncing — please wait a moment'); return; }
+function restockItem(ingKey, items){
+  const item=items.find(i=>i.key===ingKey);
+  if(!item) return;
+  const existing=findPantryItem(item.name);
+  if(existing){
+    existing.currentQty=existing.totalQty;
+  } else {
+    S.pantry.push({ id:uid('p'), name:item.name, totalQty:item.qty, unit:item.unit, currentQty:item.qty });
+  }
+}
+
+function markTickedPurchased(){
+  if(!S.pantry.length&&S.recipes.length){ toast('Still syncing — please wait a moment'); return; }
   const {key}=getWeek(S.weekOffset);
   const ticked=S.shoppingTicked[key]||{};
   const tickedKeys=Object.keys(ticked).filter(k=>ticked[k]);
   if(!tickedKeys.length){ toast('No items ticked'); return; }
-  tickedKeys.forEach(ingKey=>{
-    S.pantry.forEach(p=>{
-      if(normIngredient(p.name)===ingKey) p.currentQty=p.totalQty;
-    });
-  });
+  const items=buildShoppingList(key);
+  tickedKeys.forEach(ingKey=>restockItem(ingKey, items));
   renderPantry(); renderShopping(); scheduleSave();
   toast(`${tickedKeys.length} item${tickedKeys.length>1?'s':''} restocked ✓`);
 }
+
 function markAllPurchased(){
-  if(!S.pantry.length){ toast('Still syncing — please wait a moment'); return; }
+  if(!S.pantry.length&&S.recipes.length){ toast('Still syncing — please wait a moment'); return; }
   const {key}=getWeek(S.weekOffset);
-  if(S.shoppingRestocked[key]){
-    toast('Already restocked this week');
-    return;
-  }
+  if(S.shoppingRestocked[key]){ toast('Already restocked this week'); return; }
   const items=buildShoppingList(key);
   if(!S.shoppingTicked[key]) S.shoppingTicked[key]={};
   items.forEach(i=>{
     S.shoppingTicked[key][i.key]=true;
-    // Restock pantry for each item
-    S.pantry.forEach(p=>{
-      if(normIngredient(p.name)===i.key) p.currentQty=p.totalQty;
-    });
+    restockItem(i.key, items);
   });
   S.shoppingRestocked[key]=true;
   renderShopping(); renderPantry(); scheduleSave();
   toast('Pantry restocked ✓');
 }
 
-// ── Generate plan ────────────────────────────────────────────────────────────
+// ── Generate plan ─────────────────────────────────────────────────────────────
 async function generatePlan(){
   if(S.recipes.length<2){ alert('Add at least 2 recipes first.'); return; }
   const {key}=getWeek(S.weekOffset);
   const existingMeals=Object.keys(S.weeks[key]||{}).length;
-  if(existingMeals>0 && !confirm('Replace this week\'s meals with a new plan?')) return;
+  if(existingMeals>0&&!confirm('Replace this week\'s meals with a new plan?')) return;
   const st=document.getElementById('status-planner');
   st.style.display='flex';
   const mpw=S.settings.mealsPerWeek||5;
@@ -767,7 +826,7 @@ async function generatePlan(){
       const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recent.push(r.name);
     });
   }
-  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Prefer recipes with rating 1 (thumbs up). Avoid rating -1 (thumbs down) unless no alternatives. Vary proteins and cooking methods. Balance PCOS nutrition.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
+  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Prefer recipes with rating 1 (thumbs up). Avoid rating -1 (thumbs down) unless no alternatives. Vary proteins and cooking methods.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
   try {
     const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})});
     if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
@@ -777,29 +836,17 @@ async function generatePlan(){
     if(!match) throw new Error('No plan data found');
     const plan=JSON.parse(match[0]);
     S.weeks[key]={};
-    // Reset ticked/restocked for this week when new plan generated
+    S.cookedMeals[key]={};
     S.shoppingTicked[key]={};
     S.shoppingRestocked[key]=false;
     plan.forEach(item=>{ if(item.day&&item.recipeId) S.weeks[key][item.day]={recipeId:item.recipeId}; });
-    deductPantry(key);
     st.style.display='none';
-    renderPlanner(); renderPantry(); renderShopping();
+    renderPlanner(); renderShopping();
     scheduleSave(); toast('Meal plan generated ✓');
   } catch(e){ st.style.display='none'; alert('Error: '+e.message); }
 }
 
-function deductPantry(weekKey){
-  Object.values(S.weeks[weekKey]||{}).forEach(meal=>{
-    const r=S.recipes.find(r=>r.id===meal.recipeId);
-    if(!r||!r.ingredients) return;
-    r.ingredients.forEach(ing=>{
-      const pi=findPantryItem(ing.name);
-      if(pi) pi.currentQty=Math.max(0,pi.currentQty-ing.qty);
-    });
-  });
-}
-
-// ── Reroll ───────────────────────────────────────────────────────────────────
+// ── Reroll ────────────────────────────────────────────────────────────────────
 async function rerollMeal(weekKey, day){
   const btn=document.getElementById('reroll-'+day);
   if(btn){ btn.classList.add('spinning'); btn.disabled=true; }
@@ -814,7 +861,7 @@ async function rerollMeal(weekKey, day){
   }
   const available=S.recipes.filter(r=>!usedIds.includes(r.id));
   if(available.length===0){ toast('No other recipes available'); if(btn){btn.classList.remove('spinning');btn.disabled=false;} return; }
-  const prompt=`${PCOS}\n\nAvailable recipes to choose from (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1. Return ONLY a JSON object, no markdown:\n{"recipeId":"..."}`;
+  const prompt=`${PCOS}\n\nAvailable recipes (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1. Return ONLY a JSON object:\n{"recipeId":"..."}`;
   try {
     const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,messages:[{role:'user',content:prompt}]})});
     if(!res.ok) throw new Error('API error');
@@ -824,8 +871,20 @@ async function rerollMeal(weekKey, day){
     if(!match) throw new Error('No response');
     const result=JSON.parse(match[0]);
     if(result.recipeId){
+      // If this day was cooked, un-cook it first (reverse deduction) before replacing
+      if(S.cookedMeals[weekKey]&&S.cookedMeals[weekKey][day]){
+        const oldMeal=S.weeks[weekKey][day];
+        const oldRecipe=S.recipes.find(r=>r.id===oldMeal.recipeId);
+        if(oldRecipe&&oldRecipe.ingredients){
+          oldRecipe.ingredients.forEach(ing=>{
+            const pi=findPantryItem(ing.name);
+            if(pi) pi.currentQty=Math.min(pi.totalQty, pi.currentQty+ing.qty);
+          });
+        }
+        delete S.cookedMeals[weekKey][day];
+      }
       S.weeks[weekKey][day]={recipeId:result.recipeId};
-      renderPlanner(); scheduleSave();
+      renderPlanner(); renderPantry(); scheduleSave();
       const nr=S.recipes.find(r=>r.id===result.recipeId);
       toast(nr?`${day}: ${nr.name}`:'Meal updated');
     }
@@ -833,14 +892,8 @@ async function rerollMeal(weekKey, day){
   finally { if(btn){btn.classList.remove('spinning');btn.disabled=false;} }
 }
 
-function removeMeal(wk,day){ if(S.weeks[wk]) delete S.weeks[wk][day]; renderPlanner(); scheduleSave(); }
-
-// ── Rating ────────────────────────────────────────────────────────────────────
-function setRating(id, rating){
-  const r=S.recipes.find(r=>r.id===id); if(!r) return;
-  r.rating = r.rating===rating ? null : rating;
-  renderRecipes(); scheduleSave();
-}
+function removeMeal(wk,day){ if(S.weeks[wk]) delete S.weeks[wk][day]; if(S.cookedMeals[wk]) delete S.cookedMeals[wk][day]; renderPlanner(); scheduleSave(); }
+function setRating(id,rating){ const r=S.recipes.find(r=>r.id===id); if(!r) return; r.rating=r.rating===rating?null:rating; renderRecipes(); scheduleSave(); }
 
 // ── Modals ────────────────────────────────────────────────────────────────────
 function openModal(type){
