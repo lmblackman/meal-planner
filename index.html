@@ -657,7 +657,7 @@ function renderPlanner(){
       <div class="row-between">
         <div style="min-width:0;flex:1">
           <div class="day-label">${day}${isCooked?' · <span style="color:var(--sage);font-weight:500">Cooked</span>':''}</div>
-          <div class="meal-name" onclick="viewRecipe('${r.id}')" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border-strong);text-underline-offset:3px">${r.name}${ratingLabel}</div>
+          <div class="meal-name">${r.name}${ratingLabel}</div>
           <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
         </div>
         <div class="meal-slot-actions">
@@ -951,7 +951,7 @@ function pantryFormHTML(pf={}){
   </div>
   <div class="field"><label>Current stock</label><input type="number" id="p-cur" value="${pf.currentQty||''}" placeholder="Leave blank if full" step="any" inputmode="decimal"/></div>
   <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
-    <button class="btn btn-primary btn-full" id="p-save-btn">${pf.id?'Update item':'Add to pantry'}</button>
+    <button class="btn btn-primary btn-full" id="p-save-btn" ${!pf.id?'onclick="savePantry()"':''}>${pf.id?'Update item':'Add to pantry'}</button>
     <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
   </div>`;
 }
