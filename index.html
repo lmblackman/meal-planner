@@ -827,14 +827,19 @@ function renderPlanner(){
   slots.innerHTML=hasMeals?DAYS.slice(0,mpw).map(day=>{
     const meal=week[day];
     const r=meal?S.recipes.find(r=>r.id===meal.recipeId):null;
-    if(!r) return `<div class="meal-slot empty-slot"><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>`;
+    if(!r) return `<div class="meal-slot empty-slot">
+      <div class="row-between">
+        <div><div class="day-label">${day}</div><div class="meal-name">No meal planned</div></div>
+        <button class="btn-reroll" id="reroll-${day}" onclick="rerollMeal('${key}','${day}')" title="Generate a meal for this day">${rerollIcon} New</button>
+      </div>
+    </div>`;
     const isCooked=!!cooked[day];
     const ratingLabel=r.rating===1?' 👍':r.rating===-1?' 👎':'';
     return `<div class="meal-slot${isCooked?' cooked':''}">
       <div class="row-between">
         <div style="min-width:0;flex:1">
           <div class="day-label">${day}${isCooked?' · <span style="color:var(--sage);font-weight:500">Cooked</span>':''}</div>
-          <div class="meal-name">${r.name}${ratingLabel}</div>
+          <div class="meal-name" onclick="viewRecipe('${r.id}')" style="cursor:pointer" title="View recipe">${r.name}${ratingLabel}</div>
           <div class="meal-meta">${r.protein?'~'+r.protein+'g protein':''}</div>
         </div>
         <div class="meal-slot-actions">
@@ -856,7 +861,7 @@ function renderRecipes(){
     el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.</p></div>';
     return;
   }
-  const aiIcon=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px" title="AI-generated"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>`;
+  const aiIcon=`<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:middle;margin-right:2px" title="AI-generated"><path d="M12 2l2.5 7.5H22l-6.5 4.7 2.5 7.5L12 17.2l-6 4.5 2.5-7.5L2 9.5h7.5z"/></svg>`;
   const sorted=[...S.recipes].sort((a,b)=>(b.rating||0)-(a.rating||0));
   el.innerHTML=sorted.map(r=>{
     const upActive=r.rating===1?'active':'';
@@ -1196,7 +1201,7 @@ The method should be detailed step-by-step instructions. Protein should be estim
       <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">${recipe.protein?'~'+recipe.protein+'g protein · ':''} ${recipe.ingredients?recipe.ingredients.length+' ingredients':''}</div>
       <div style="margin-bottom:14px">
         ${recipe.tags&&recipe.tags.length?recipe.tags.map(t=>`<span class="badge badge-muted" style="margin-right:4px">${t}</span>`).join(''):''}
-        <span class="badge badge-sage" style="margin-right:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>AI-generated</span>
+        <span class="badge badge-sage" style="margin-right:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:middle;margin-right:2px"><path d="M12 2l2.5 7.5H22l-6.5 4.7 2.5 7.5L12 17.2l-6 4.5 2.5-7.5L2 9.5h7.5z"/></svg>AI-generated</span>
       </div>
       <div style="margin-bottom:14px">
         <div style="font-size:11px;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Ingredients</div>
