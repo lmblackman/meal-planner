@@ -133,9 +133,9 @@
   .recipe-card-meta { font-size: 12px; color: var(--ink-mid); }
   .recipe-card-ings { font-size: 12px; color: var(--ink-light); margin-top: 5px; }
 
-  .rating-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 4px; opacity: 0.3; transition: opacity 0.15s, transform 0.1s; line-height: 1; }
+  .rating-btn { background: none; border: 1.5px solid var(--border); border-radius: 6px; cursor: pointer; padding: 4px 6px; opacity: 0.45; transition: opacity 0.15s, transform 0.1s; line-height: 1; display:flex; align-items:center; color: var(--ink-mid); }
   .rating-btn:hover { opacity: 0.7; }
-  .rating-btn.active { opacity: 1; }
+  .rating-btn.active { opacity: 1; border-color: var(--sage); color: var(--sage); background: var(--sage-light); }
   .rating-btn:active { transform: scale(1.2); }
 
   /* Pantry grid layout */
@@ -834,7 +834,7 @@ function renderPlanner(){
       </div>
     </div>`;
     const isCooked=!!cooked[day];
-    const ratingLabel=r.rating===1?' 👍':r.rating===-1?' 👎':'';
+    const ratingLabel=r.rating===1?' ↑':r.rating===-1?' ↓':'';
     return `<div class="meal-slot${isCooked?' cooked':''}">
       <div class="row-between">
         <div style="min-width:0;flex:1">
@@ -875,8 +875,8 @@ function renderRecipes(){
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
           <div style="display:flex;gap:2px;align-items:center">
-            <button class="rating-btn ${upActive}" onclick="setRating('${r.id}',1)" title="Thumbs up">👍</button>
-            <button class="rating-btn ${downActive}" onclick="setRating('${r.id}',-1)" title="Thumbs down">👎</button>
+            <button class="rating-btn ${upActive}" onclick="setRating('${r.id}',1)" title="Thumbs up"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg></button>
+            <button class="rating-btn ${downActive}" onclick="setRating('${r.id}',-1)" title="Thumbs down"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg></button>
           </div>
           <div class="row-gap" style="gap:4px">
             <button class="btn btn-sm btn-ghost" onclick="viewRecipe('${r.id}')">View</button>
