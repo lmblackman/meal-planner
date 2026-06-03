@@ -219,7 +219,10 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="wordmark">Meal Planner</div>
-      <div class="sub">For Laurie &amp; Sylvie</div>
+      <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
+        <svg width="8" height="5" viewBox="0 0 8 5" fill="none" style="flex-shrink:0;opacity:0.35"><path d="M1 1l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <select id="profile-select" onchange="switchProfile(this.value)" style="background:transparent;border:none;outline:none;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;padding:0;width:100%;font-family:inherit;appearance:none;-webkit-appearance:none;color-scheme:dark"></select>
+      </div>
     </div>
     <nav>
       <div class="nav-item active" onclick="showTab('planner',this)">
@@ -384,14 +387,11 @@
         </div>
         <div class="divider"></div>
         <div class="section-label">Profile</div>
-        <div class="field">
-          <label>Active profile</label>
-          <select id="profile-select" onchange="switchProfile(this.value)"></select>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:-4px;margin-bottom:4px">
-          <div style="font-size:12px;color:var(--ink-light)">Each profile has its own recipes, pantry and plans.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:13px;color:var(--ink-mid)" id="settings-profile-name"></div>
           <button class="btn btn-sm btn-danger" onclick="deleteCurrentProfile()" style="font-size:11px;padding:3px 8px">Delete profile</button>
         </div>
+        <div style="font-size:12px;color:var(--ink-light);margin-bottom:4px">Each profile has its own recipes, pantry and plans.</div>
         <div class="divider"></div>
         <div class="section-label">Data</div>
         <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">All data syncs automatically.</div>
@@ -605,11 +605,13 @@ async function saveToBin(){
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToBin,4000); }
 async function applyProfile(){
   const sel=document.getElementById('profile-select');
-  if(!sel) return;
+  const lbl=document.getElementById('settings-profile-name');
   const current=getProfile();
   const profiles=await fetchProfiles();
-  sel.innerHTML=profiles.map(p=>`<option value="${p}"${p===current?' selected':''}>${p}</option>`).join('')
+  const opts=profiles.map(p=>`<option value="${p}"${p===current?' selected':''}>${p}</option>`).join('')
     +'<option value="__new__">+ Create new profile</option>';
+  if(sel){ sel.innerHTML=opts; }
+  if(lbl){ lbl.textContent=current; }
 }
 function switchProfile(name){
   if(name==='__new__'){ promptNewProfile(); return; }
@@ -716,19 +718,25 @@ function buildShoppingList(weekKey){
     const r=S.recipes.find(r=>r.id===meal.recipeId);
     if(!r||!r.ingredients) return;
     r.ingredients.forEach(ing=>{
-      const pi=findPantryItem(ing.name);
-      let buyQty=0, buyUnit=ing.unit;
-      if(pi){
-        if(pi.currentQty<pi.totalQty*0.15||pi.currentQty<ing.qty){ buyQty=pi.totalQty; buyUnit=pi.unit; }
-      } else { buyQty=ing.qty; buyUnit=ing.unit; }
-      if(buyQty>0){
-        const k=normIngredient(ing.name);
-        if(needed[k]) needed[k].qty+=buyQty;
-        else needed[k]={name:ing.name,qty:buyQty,unit:buyUnit,cat:ing.category||'Other',key:k};
-      }
+      const k=normIngredient(ing.name);
+      // Accumulate total required qty across all planned meals
+      if(!needed[k]) needed[k]={name:ing.name,qty:0,unit:ing.unit,cat:ing.category||'Other',key:k,requiredQty:0};
+      needed[k].requiredQty=(needed[k].requiredQty||0)+ing.qty;
     });
   });
-  return Object.values(needed);
+  // Now resolve which items need buying
+  Object.values(needed).forEach(item=>{
+    const pi=findPantryItem(item.name);
+    let buyQty=0;
+    if(pi){
+      // Buy if: below 15% threshold OR not enough stock to cover all planned meals
+      if(pi.currentQty<pi.totalQty*0.15||pi.currentQty<item.requiredQty){ buyQty=pi.totalQty; item.unit=pi.unit; }
+    } else {
+      buyQty=item.requiredQty;
+    }
+    item.qty=buyQty;
+  });
+  return Object.values(needed).filter(i=>i.qty>0);
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
