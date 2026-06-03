@@ -441,24 +441,45 @@
 
 <script>
 const DIETARY_TAGS = [
-  { id:'pescatarian',  label:'Pescatarian',      group:'protein',  prompt:'Pescatarian: fish and seafood only, absolutely no meat or poultry.' },
-  { id:'vegetarian',   label:'Vegetarian',        group:'protein',  prompt:'Vegetarian: no meat, poultry, or fish.' },
-  { id:'vegan',        label:'Vegan',             group:'protein',  prompt:'Vegan: no animal products whatsoever including meat, fish, dairy, and eggs.' },
-  { id:'gluten_free',  label:'Gluten-free',       group:'allergy',  prompt:'Strictly gluten-free: no wheat, barley, rye, or anything containing gluten. Use certified gluten-free alternatives.' },
-  { id:'dairy_free',   label:'Dairy-free',        group:'allergy',  prompt:'Dairy-free: no milk, cheese, butter, cream, or any dairy products.' },
-  { id:'lactose_free', label:'Lactose-free',      group:'allergy',  prompt:'Lactose-free: avoid lactose; hard cheeses and lactose-free dairy are acceptable.' },
-  { id:'nut_free',     label:'Nut-free',          group:'allergy',  prompt:'Nut-free: no nuts or nut-derived products.' },
-  { id:'egg_free',     label:'Egg-free',          group:'allergy',  prompt:'Egg-free: no eggs or egg-derived products.' },
-  { id:'pcos',         label:'PCOS-friendly',     group:'health',   prompt:'PCOS & insulin resistance management: high protein 110-140g/day, anti-inflammatory, low glycaemic index. Best proteins: salmon, cod, prawns, eggs, Greek yogurt. Best carbs: sweet potato, quinoa, lentils, brown rice, chickpeas. Anti-inflammatory: turmeric, ginger, garlic, berries, leafy greens. Avoid sugary drinks, white rice in large portions, processed foods.' },
-  { id:'diabetic',     label:'Diabetic-friendly', group:'health',   prompt:'Diabetic-friendly: low glycaemic index foods, controlled carbohydrates, no added sugars, high fibre.' },
-  { id:'low_gi',       label:'Low GI',            group:'health',   prompt:'Low GI: prioritise low glycaemic index ingredients. Avoid refined carbs and sugary foods.' },
-  { id:'high_protein', label:'High protein',      group:'nutrition',prompt:'High protein: aim for at least 30g protein per meal. Prioritise protein-rich ingredients.' },
-  { id:'high_fibre',   label:'High fibre',        group:'nutrition',prompt:'High fibre: include plenty of vegetables, legumes, wholegrains, and seeds.' },
-  { id:'low_carb',     label:'Low carb',          group:'nutrition',prompt:'Low carb: minimise starchy carbohydrates. Favour vegetables, protein, and healthy fats.' },
-  { id:'low_calorie',  label:'Low calorie',       group:'nutrition',prompt:'Low calorie: keep meals under 500 calories. Focus on volume eating with vegetables and lean protein.' },
-  { id:'mediterranean',label:'Mediterranean',     group:'style',    prompt:'Mediterranean-leaning cooking style: olive oil, fresh vegetables, fish, legumes, herbs.' },
-  { id:'asian',        label:'Asian-inspired',    group:'style',    prompt:'Asian-inspired cooking style: use flavours and techniques from East and South-East Asian cuisines.' },
-  { id:'aga',          label:'Aga/slow oven',     group:'style',    prompt:'Aga or slow oven cooking: favour oven-baked, roasted, or slow-cooked methods.' },
+  { id:'pescatarian',    label:'Pescatarian',        group:'protein',   prompt:`Pescatarian: fish and seafood only, absolutely no meat or poultry.` },
+  { id:'vegetarian',     label:'Vegetarian',          group:'protein',   prompt:`Vegetarian: no meat, poultry, or fish.` },
+  { id:'vegan',          label:'Vegan',               group:'protein',   prompt:`Vegan: no animal products whatsoever including meat, fish, dairy, and eggs.` },
+  { id:'omnivore',       label:'Omnivore',             group:'protein',   prompt:`No restrictions on protein sources — meat, fish, dairy, and eggs are all acceptable.` },
+  { id:'gluten_free',    label:'Gluten-free',          group:'allergy',   prompt:`Strictly gluten-free: no wheat, barley, rye, or anything containing gluten. Use certified gluten-free alternatives.` },
+  { id:'dairy_free',     label:'Dairy-free',           group:'allergy',   prompt:`Dairy-free: no milk, cheese, butter, cream, or any dairy products.` },
+  { id:'lactose_free',   label:'Lactose-free',         group:'allergy',   prompt:`Lactose-free: avoid lactose; hard cheeses and lactose-free dairy are acceptable.` },
+  { id:'nut_free',       label:'Nut-free',             group:'allergy',   prompt:`Nut-free: no nuts or nut-derived products.` },
+  { id:'egg_free',       label:'Egg-free',             group:'allergy',   prompt:`Egg-free: no eggs or egg-derived products.` },
+  { id:'soy_free',       label:'Soy-free',             group:'allergy',   prompt:`Soy-free: no soy, tofu, edamame, soy sauce, or other soy-derived products.` },
+  { id:'shellfish_free', label:'Shellfish-free',       group:'allergy',   prompt:`Shellfish-free: no prawns, crab, lobster, mussels, clams, or other shellfish.` },
+  { id:'halal',          label:'Halal',                group:'allergy',   prompt:`Halal: no pork or pork-derived products, no alcohol in cooking, all meat must be halal-certified.` },
+  { id:'kosher',         label:'Kosher',               group:'allergy',   prompt:`Kosher: no pork or shellfish, do not mix meat and dairy in the same meal.` },
+  { id:'pcos',           label:'PCOS-friendly',        group:'health',    prompt:`PCOS & insulin resistance management: high protein 110-140g/day, anti-inflammatory, low glycaemic index. Best proteins: salmon, cod, prawns, eggs, Greek yogurt. Best carbs: sweet potato, quinoa, lentils, brown rice, chickpeas. Anti-inflammatory: turmeric, ginger, garlic, berries, leafy greens. Avoid sugary drinks, white rice in large portions, processed foods.` },
+  { id:'diabetic',       label:'Diabetic-friendly',    group:'health',    prompt:`Diabetic-friendly: low glycaemic index foods, controlled carbohydrates, no added sugars, high fibre.` },
+  { id:'low_gi',         label:'Low GI',               group:'health',    prompt:`Low GI: prioritise low glycaemic index ingredients. Avoid refined carbs and sugary foods.` },
+  { id:'anti_inflam',    label:'Anti-inflammatory',    group:'health',    prompt:`Anti-inflammatory: prioritise turmeric, ginger, garlic, oily fish, berries, leafy greens, olive oil. Avoid processed foods, refined sugars, and vegetable oils.` },
+  { id:'heart_healthy',  label:'Heart-healthy',        group:'health',    prompt:`Heart-healthy: low saturated fat, rich in omega-3, high fibre, plenty of vegetables. Avoid processed meats, excess salt, and trans fats.` },
+  { id:'gut_friendly',   label:'Gut-friendly',         group:'health',    prompt:`Gut-friendly: include fermented foods, prebiotic-rich vegetables, and high-fibre ingredients. Avoid highly processed foods and excess sugar.` },
+  { id:'hormone',        label:'Hormone-balancing',    group:'health',    prompt:`Hormone-balancing: prioritise healthy fats, fibre-rich foods, and cruciferous vegetables. Minimise refined carbs, alcohol, and processed foods.` },
+  { id:'high_protein',   label:'High protein',         group:'nutrition', prompt:`High protein: aim for at least 30g protein per meal. Prioritise protein-rich ingredients.` },
+  { id:'high_fibre',     label:'High fibre',           group:'nutrition', prompt:`High fibre: include plenty of vegetables, legumes, wholegrains, and seeds.` },
+  { id:'low_carb',       label:'Low carb',             group:'nutrition', prompt:`Low carb: minimise starchy carbohydrates. Favour vegetables, protein, and healthy fats.` },
+  { id:'low_calorie',    label:'Low calorie',          group:'nutrition', prompt:`Low calorie: keep meals under 500 calories. Focus on volume eating with vegetables and lean protein.` },
+  { id:'high_omega3',    label:'High omega-3',         group:'nutrition', prompt:`High omega-3: prioritise oily fish (salmon, mackerel, sardines), walnuts, flaxseed, and chia seeds.` },
+  { id:'low_sodium',     label:'Low sodium',           group:'nutrition', prompt:`Low sodium: avoid added salt, processed foods, soy sauce, and cured meats. Season with herbs and spices instead.` },
+  { id:'low_fat',        label:'Low fat',              group:'nutrition', prompt:`Low fat: minimise butter, oils, full-fat dairy, and fatty cuts. Focus on lean proteins and vegetables.` },
+  { id:'italian',        label:'Italian',              group:'style',     prompt:`Italian cooking style: pasta, risotto, tomato-based sauces, olive oil, fresh herbs, Parmesan, and seasonal vegetables.` },
+  { id:'middle_eastern', label:'Middle Eastern',       group:'style',     prompt:`Middle Eastern cooking style: spiced grains, legumes, tahini, zaatar, sumac, pomegranate, flatbreads, and roasted meats.` },
+  { id:'north_african',  label:'North African',        group:'style',     prompt:`North African cooking style: harissa, ras el hanout, preserved lemon, couscous, tagine-style slow cooking, chickpeas, and dried fruit.` },
+  { id:'greek',          label:'Greek',                group:'style',     prompt:`Greek cooking style: lemon, olive oil, feta, olives, oregano, grilled fish and meat, tzatziki, and fresh salads.` },
+  { id:'mexican',        label:'Mexican',              group:'style',     prompt:`Mexican cooking style: cumin, smoked paprika, chilli, lime, black beans, avocado, corn, and fresh coriander.` },
+  { id:'indian',         label:'Indian',               group:'style',     prompt:`Indian cooking style: aromatic spices (cumin, coriander, turmeric, garam masala), lentils, rice, yogurt-based sauces, and fresh ginger and garlic.` },
+  { id:'japanese',       label:'Japanese',             group:'style',     prompt:`Japanese cooking style: miso, soy, mirin, dashi, sesame, clean flavours, steamed or grilled fish, and rice or noodles.` },
+  { id:'thai',           label:'Thai',                 group:'style',     prompt:`Thai cooking style: coconut milk, lemongrass, kaffir lime, fish sauce, Thai basil, galangal, and balance of sweet, sour, salty, and spicy.` },
+  { id:'asian',          label:'Asian-inspired',       group:'style',     prompt:`Asian-inspired cooking style: broad East and South-East Asian flavours including soy, ginger, sesame, and stir-fry techniques.` },
+  { id:'aga',            label:'Aga/slow oven',        group:'style',     prompt:`Aga or slow oven cooking: favour oven-baked, roasted, or slow-cooked methods.` },
+  { id:'quick',          label:'Quick (under 30 min)', group:'style',     prompt:`Quick cooking: all recipes must be completable in under 30 minutes. No long marinating, slow roasting, or extended simmering.` },
+  { id:'batch',          label:'Batch-cook friendly',  group:'style',     prompt:`Batch-cook friendly: favour recipes that scale well, keep for 3-4 days refrigerated, and reheat easily.` },
 ];
 const TAG_GROUPS = ['protein','allergy','health','nutrition','style'];
 const TAG_GROUP_LABELS = {protein:'Protein type',allergy:'Allergies & intolerances',health:'Health goals',nutrition:'Nutrition',style:'Cooking style'};
@@ -467,7 +488,7 @@ function getDietaryTags(){ return S.settings.dietaryTags||[]; }
 function buildPrompt(){
   const active=getDietaryTags();
   if(!active.length) return 'You are a meal planning assistant. Help plan healthy, balanced dinners.';
-  const rules=active.map(id=>{ const t=DIETARY_TAGS.find(t=>t.id===id); return t?'- '+t.prompt:''; }).filter(Boolean).join('\n');
+  const rules=active.map(id=>{ const t=DIETARY_TAGS.find(t=>t.id===id); return t?'- '+t.prompt:``; }).filter(Boolean).join('\n');
   return `You are a meal planning assistant.\nStrictly follow all dietary rules:\n${rules}`;
 }
 
@@ -590,7 +611,7 @@ async function loadFromBin(){
     if(j.pantry)  { S.pantry=j.pantry; S.pantry.forEach(p=>{ if(!p.pantryCategory) p.pantryCategory=inferPantryCategory(p.name); }); }
     if(j.weeks)   S.weeks=j.weeks;
     if(j.settings) S.settings={...S.settings,...j.settings};
-    if(!S.settings.dietaryTags) S.settings.dietaryTags=['pescatarian','gluten_free','pcos','high_protein','mediterranean','aga'];
+    if(!S.settings.dietaryTags) S.settings.dietaryTags=['pescatarian','gluten_free','pcos','high_protein','italian','middle_eastern','greek','aga'];
     if(j.shoppingTicked) S.shoppingTicked=j.shoppingTicked;
     if(j.shoppingRestocked) S.shoppingRestocked=j.shoppingRestocked;
     if(j.cookedMeals) S.cookedMeals=j.cookedMeals;
