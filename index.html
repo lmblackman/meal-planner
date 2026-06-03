@@ -476,6 +476,8 @@ let S = {
   cookedMeals:{}  // { weekKey: { day: true } }
 };
 let saveTimer = null;
+let lastSavedHash = null;
+function stateHash(){ return JSON.stringify({r:S.recipes.length,p:S.pantry.length,w:Object.keys(S.weeks).length,t:S.shoppingTicked,rc:S.shoppingRestocked,c:S.cookedMeals,s:S.settings}); }
 let isMobile = () => window.innerWidth <= 680;
 
 function uid(p){ return p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
@@ -547,7 +549,9 @@ function setSyncStatus(state, sub){
 async function loadFromBin(){
   setSyncStatus('syncing','');
   try {
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`,{headers:{'X-Master-Key':JB_KEY}});
+    const ctrl=new AbortController(); const tid=setTimeout(()=>ctrl.abort(),10000);
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`,{headers:{'X-Master-Key':JB_KEY},signal:ctrl.signal});
+    clearTimeout(tid);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data=await r.json();
     const j=data.record;
@@ -559,14 +563,16 @@ async function loadFromBin(){
     if(j.shoppingRestocked) S.shoppingRestocked=j.shoppingRestocked;
     if(j.cookedMeals) S.cookedMeals=j.cookedMeals;
     applySettings(); renderAll();
+    lastSavedHash=stateHash();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
     ['purchased-ticked-btn','purchased-all-btn'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.disabled=false;
     });
-  } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
+  } catch(e){ setSyncStatus('error', e.name==='AbortError'?'Timed out':e.message.slice(0,30)); }
 }
 
 async function saveToBin(){
+  const h=stateHash(); if(h===lastSavedHash){ setSyncStatus('ok','No changes'); return; }
   setSyncStatus('syncing','');
   try {
     const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}`,{
@@ -583,7 +589,7 @@ async function saveToBin(){
   } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
 }
 
-function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToBin,800); }
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToBin,4000); }
 function applySettings(){
   const ms=document.getElementById('set-meals');
   const aw=document.getElementById('set-avoid');
