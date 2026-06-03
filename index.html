@@ -450,6 +450,22 @@ Avoid: gluten in any form, meat, sugary drinks, white rice in large portions, pr
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const CATS = ['Fish & seafood','Fruit & veg','Dairy & eggs','Grains & pulses','Cupboard','Frozen','Other'];
 const PANTRY_CATS = ['Fish & seafood','Fruit & veg','Dairy & eggs','Grains & pulses','Cupboard','Frozen','Oils & condiments','Herbs & spices','Other'];
+const CAT_KEYWORDS = {
+  'Fish & seafood': ['salmon','tuna','cod','prawn','shrimp','mackerel','sardine','anchovy','sea bass','fish','seafood','crab','mussel'],
+  'Fruit & veg': ['onion','garlic','tomato','courgette','pepper','spinach','kale','broccoli','carrot','lemon','lime','potato','sweet potato','avocado','cucumber','lettuce','celery','mushroom','aubergine','leek','apple','banana','berry','berries','fruit','veg','herb','parsley','coriander','basil','chilli','ginger','spring onion'],
+  'Dairy & eggs': ['egg','milk','butter','cream','cheese','feta','yogurt','yoghurt','parmesan','mozzarella','cheddar','ricotta','cottage'],
+  'Grains & pulses': ['rice','quinoa','lentil','chickpea','bean','oat','pasta','noodle','flour','bread','couscous','bulgur','barley','lentil','split pea','black bean','kidney bean','cannellini'],
+  'Frozen': ['frozen'],
+  'Oils & condiments': ['oil','vinegar','sauce','soy','tamari','tahini','mustard','mayo','mayonnaise','ketchup','sriracha','harissa','pesto','miso','worcestershire','fish sauce','hot sauce','dressing'],
+  'Herbs & spices': ['salt','pepper','cumin','paprika','turmeric','cinnamon','oregano','thyme','rosemary','bay','chilli flake','cayenne','coriander seed','cardamom','nutmeg','clove','star anise','sumac','za'atar','ras el hanout','spice','seasoning','stock','bouillon']
+};
+function inferPantryCategory(name){
+  const n=name.toLowerCase();
+  for(const [cat,keywords] of Object.entries(CAT_KEYWORDS)){
+    if(keywords.some(k=>n.includes(k))) return cat;
+  }
+  return 'Cupboard';
+}
 
 let S = {
   recipes:[], pantry:[], weeks:{},
@@ -536,7 +552,7 @@ async function loadFromBin(){
     const data=await r.json();
     const j=data.record;
     if(j.recipes) S.recipes=j.recipes;
-    if(j.pantry)  S.pantry=j.pantry;
+    if(j.pantry)  { S.pantry=j.pantry; S.pantry.forEach(p=>{ if(!p.pantryCategory) p.pantryCategory=inferPantryCategory(p.name); }); }
     if(j.weeks)   S.weeks=j.weeks;
     if(j.settings) S.settings={...S.settings,...j.settings};
     if(j.shoppingTicked) S.shoppingTicked=j.shoppingTicked;
@@ -607,6 +623,7 @@ function toggleCooked(weekKey, day){
         const pi=findPantryItem(ing.name);
         if(pi) pi.currentQty=Math.max(0, pi.currentQty-ing.qty);
       });
+      S.pantry=S.pantry.filter(p=>p.currentQty>0);
     }
     S.cookedMeals[weekKey][day]=true;
     renderPantry();
