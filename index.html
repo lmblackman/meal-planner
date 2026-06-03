@@ -376,15 +376,8 @@
         </div>
         <div class="divider"></div>
         <div class="section-label">Dietary profile</div>
-        <div style="font-size:13px;color:var(--ink-mid);line-height:1.7">
-          <div style="margin-bottom:8px">
-            <span class="badge badge-sage" style="margin-right:4px">Pescatarian</span>
-            <span class="badge badge-sage" style="margin-right:4px">Gluten-free</span>
-            <span class="badge badge-terra" style="margin-right:4px">PCOS-friendly</span>
-            <span class="badge badge-muted">High protein</span>
-          </div>
-          Baked into all AI-generated plans.
-        </div>
+        <div style="font-size:12px;color:var(--ink-light);margin-bottom:12px">Applied to all AI-generated plans for this profile.</div>
+        <div id="dietary-tag-picker"></div>
         <div class="divider"></div>
         <div class="section-label">Profile</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -442,17 +435,36 @@
 </div>
 
 <script>
-const PCOS = `You are a meal planning assistant for Laurie and Sylvie, a couple in London.
-Strictly follow all dietary rules:
-- Pescatarian: fish and seafood only, absolutely no meat or poultry
-- Strictly gluten-free: no wheat, barley, rye, or anything containing gluten
-- PCOS & insulin resistance management: high protein 110-140g/day, anti-inflammatory, low glycaemic index
-- Mediterranean-leaning cooking style, oven-friendly (they have an Aga)
-Best proteins: salmon, tuna, cod, sardines, prawns, sea bass, smoked mackerel, eggs, Greek yogurt, cottage cheese
-Best carbs: sweet potato, quinoa, lentils, brown rice, beans, chickpeas, gluten-free oats
-Best fats: olive oil, chia seeds, walnuts, avocado, flaxseed
-Anti-inflammatory: turmeric, ginger, garlic, cinnamon, berries, leafy greens
-Avoid: gluten in any form, meat, sugary drinks, white rice in large portions, processed foods`;
+const DIETARY_TAGS = [
+  { id:'pescatarian',  label:'Pescatarian',      group:'protein',  prompt:'Pescatarian: fish and seafood only, absolutely no meat or poultry.' },
+  { id:'vegetarian',   label:'Vegetarian',        group:'protein',  prompt:'Vegetarian: no meat, poultry, or fish.' },
+  { id:'vegan',        label:'Vegan',             group:'protein',  prompt:'Vegan: no animal products whatsoever including meat, fish, dairy, and eggs.' },
+  { id:'gluten_free',  label:'Gluten-free',       group:'allergy',  prompt:'Strictly gluten-free: no wheat, barley, rye, or anything containing gluten. Use certified gluten-free alternatives.' },
+  { id:'dairy_free',   label:'Dairy-free',        group:'allergy',  prompt:'Dairy-free: no milk, cheese, butter, cream, or any dairy products.' },
+  { id:'lactose_free', label:'Lactose-free',      group:'allergy',  prompt:'Lactose-free: avoid lactose; hard cheeses and lactose-free dairy are acceptable.' },
+  { id:'nut_free',     label:'Nut-free',          group:'allergy',  prompt:'Nut-free: no nuts or nut-derived products.' },
+  { id:'egg_free',     label:'Egg-free',          group:'allergy',  prompt:'Egg-free: no eggs or egg-derived products.' },
+  { id:'pcos',         label:'PCOS-friendly',     group:'health',   prompt:'PCOS & insulin resistance management: high protein 110-140g/day, anti-inflammatory, low glycaemic index. Best proteins: salmon, cod, prawns, eggs, Greek yogurt. Best carbs: sweet potato, quinoa, lentils, brown rice, chickpeas. Anti-inflammatory: turmeric, ginger, garlic, berries, leafy greens. Avoid sugary drinks, white rice in large portions, processed foods.' },
+  { id:'diabetic',     label:'Diabetic-friendly', group:'health',   prompt:'Diabetic-friendly: low glycaemic index foods, controlled carbohydrates, no added sugars, high fibre.' },
+  { id:'low_gi',       label:'Low GI',            group:'health',   prompt:'Low GI: prioritise low glycaemic index ingredients. Avoid refined carbs and sugary foods.' },
+  { id:'high_protein', label:'High protein',      group:'nutrition',prompt:'High protein: aim for at least 30g protein per meal. Prioritise protein-rich ingredients.' },
+  { id:'high_fibre',   label:'High fibre',        group:'nutrition',prompt:'High fibre: include plenty of vegetables, legumes, wholegrains, and seeds.' },
+  { id:'low_carb',     label:'Low carb',          group:'nutrition',prompt:'Low carb: minimise starchy carbohydrates. Favour vegetables, protein, and healthy fats.' },
+  { id:'low_calorie',  label:'Low calorie',       group:'nutrition',prompt:'Low calorie: keep meals under 500 calories. Focus on volume eating with vegetables and lean protein.' },
+  { id:'mediterranean',label:'Mediterranean',     group:'style',    prompt:'Mediterranean-leaning cooking style: olive oil, fresh vegetables, fish, legumes, herbs.' },
+  { id:'asian',        label:'Asian-inspired',    group:'style',    prompt:'Asian-inspired cooking style: use flavours and techniques from East and South-East Asian cuisines.' },
+  { id:'aga',          label:'Aga/slow oven',     group:'style',    prompt:'Aga or slow oven cooking: favour oven-baked, roasted, or slow-cooked methods.' },
+];
+const TAG_GROUPS = ['protein','allergy','health','nutrition','style'];
+const TAG_GROUP_LABELS = {protein:'Protein type',allergy:'Allergies & intolerances',health:'Health goals',nutrition:'Nutrition',style:'Cooking style'};
+
+function getDietaryTags(){ return S.settings.dietaryTags||[]; }
+function buildPrompt(){
+  const active=getDietaryTags();
+  if(!active.length) return 'You are a meal planning assistant. Help plan healthy, balanced dinners.';
+  const rules=active.map(id=>{ const t=DIETARY_TAGS.find(t=>t.id===id); return t?'- '+t.prompt:''; }).filter(Boolean).join('\n');
+  return `You are a meal planning assistant.\nStrictly follow all dietary rules:\n${rules}`;
+}
 
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const DEFAULT_PROFILE = 'Laurie & Sylvie';
@@ -571,6 +583,7 @@ async function loadFromBin(){
     if(j.pantry)  { S.pantry=j.pantry; S.pantry.forEach(p=>{ if(!p.pantryCategory) p.pantryCategory=inferPantryCategory(p.name); }); }
     if(j.weeks)   S.weeks=j.weeks;
     if(j.settings) S.settings={...S.settings,...j.settings};
+    if(!S.settings.dietaryTags) S.settings.dietaryTags=['pescatarian','gluten_free','pcos','high_protein','mediterranean','aga'];
     if(j.shoppingTicked) S.shoppingTicked=j.shoppingTicked;
     if(j.shoppingRestocked) S.shoppingRestocked=j.shoppingRestocked;
     if(j.cookedMeals) S.cookedMeals=j.cookedMeals;
@@ -644,12 +657,38 @@ async function deleteCurrentProfile(){
   switchProfile(next);
   toast('Profile deleted');
 }
+function renderDietaryTags(){
+  const el=document.getElementById('dietary-tag-picker');
+  if(!el) return;
+  const active=getDietaryTags();
+  el.innerHTML=TAG_GROUPS.map(group=>{
+    const tags=DIETARY_TAGS.filter(t=>t.group===group);
+    return `<div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">${TAG_GROUP_LABELS[group]}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${tags.map(t=>{
+          const on=active.includes(t.id);
+          return `<button onclick="toggleDietaryTag('${t.id}')" style="padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;border:1.5px solid ${on?'var(--sage)':'var(--border)'};background:${on?'var(--sage-light)':'transparent'};color:${on?'var(--sage)':'var(--ink-mid)'};font-family:inherit;transition:all 0.15s">${t.label}</button>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleDietaryTag(id){
+  const tags=getDietaryTags();
+  const idx=tags.indexOf(id);
+  if(idx===-1) tags.push(id); else tags.splice(idx,1);
+  S.settings.dietaryTags=tags;
+  renderDietaryTags();
+  scheduleSave();
+}
 function applySettings(){
   const ms=document.getElementById('set-meals');
   const aw=document.getElementById('set-avoid');
   if(ms) ms.value=S.settings.mealsPerWeek||5;
   if(aw) aw.value=S.settings.avoidWeeks||2;
   applyProfile();
+  renderDietaryTags();
 }
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
 function clearAll(){
@@ -947,7 +986,7 @@ async function generatePlan(){
       const r=S.recipes.find(r=>r.id===m.recipeId); if(r) recent.push(r.name);
     });
   }
-  const prompt=`${PCOS}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Prefer recipes with rating 1 (thumbs up). Avoid rating -1 (thumbs down) unless no alternatives. Vary proteins and cooking methods.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
+  const prompt=`${buildPrompt()}\n\nAvailable recipes:\n${JSON.stringify(S.recipes.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nRecently used (do not repeat): ${recent.join(', ')||'none'}\n\nSelect exactly ${mpw} dinners. Prefer recipes with rating 1 (thumbs up). Avoid rating -1 (thumbs down) unless no alternatives. Vary proteins and cooking methods.\n\nReturn ONLY a JSON array, no markdown:\n[{"day":"Monday","recipeId":"..."},...]`;
   try {
     const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})});
     if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
@@ -982,7 +1021,7 @@ async function rerollMeal(weekKey, day){
   }
   const available=S.recipes.filter(r=>!usedIds.includes(r.id));
   if(available.length===0){ toast('No other recipes available'); if(btn){btn.classList.remove('spinning');btn.disabled=false;} return; }
-  const prompt=`${PCOS}\n\nAvailable recipes (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1. Return ONLY a JSON object:\n{"recipeId":"..."}`;
+  const prompt=`${buildPrompt()}\n\nAvailable recipes (pick exactly one for ${day}):\n${JSON.stringify(available.map(r=>({id:r.id,name:r.name,tags:r.tags,protein:r.protein,rating:r.rating})),null,2)}\n\nAlready planned this week: ${Object.entries(week).filter(([d])=>d!==day).map(([,m])=>{const r=S.recipes.find(r=>r.id===m.recipeId);return r?r.name:''}).filter(Boolean).join(', ')||'none'}\nRecently used (avoid if possible): ${recentNames.join(', ')||'none'}\n\nPrefer recipes with rating 1. Return ONLY a JSON object:\n{"recipeId":"..."}`;
   try {
     const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,messages:[{role:'user',content:prompt}]})});
     if(!res.ok) throw new Error('API error');
@@ -1083,7 +1122,7 @@ async function extractUrl(){
   const url=document.getElementById('url-in').value.trim();
   if(!url){ alert('Enter a URL.'); return; }
   document.getElementById('url-status').style.display='flex';
-  const prompt=`${PCOS}\n\nFetch and extract the recipe at this URL: ${url}\n\nReturn ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt to be gluten-free and pescatarian if needed.`;
+  const prompt=`${buildPrompt()}\n\nFetch and extract the recipe at this URL: ${url}\n\nReturn ONLY a JSON object, no markdown:\n{"name":"...","protein":number_or_null,"tags":["..."],"method":"...","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Produce|Dairy & eggs|Grains & pulses|Pantry|Frozen|Other"}]}\n\nAdapt to be gluten-free and pescatarian if needed.`;
   try {
     const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
     if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
