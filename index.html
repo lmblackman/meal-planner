@@ -432,9 +432,6 @@
 </div>
 
 <script>
-const JB_KEY = '$2a$10$YCxfYdd0/BPMvaRAxk8yiuil9T0PEawZFz/q1TPKkleMutgDgllZu';
-const JB_BIN = '6a1db47c21f9ee59d2a649fd';
-
 const PCOS = `You are a meal planning assistant for Laurie and Sylvie, a couple in London.
 Strictly follow all dietary rules:
 - Pescatarian: fish and seafood only, absolutely no meat or poultry
@@ -457,7 +454,7 @@ const CAT_KEYWORDS = {
   'Grains & pulses': ['rice','quinoa','lentil','chickpea','bean','oat','pasta','noodle','flour','bread','couscous','bulgur','barley','lentil','split pea','black bean','kidney bean','cannellini'],
   'Frozen': ['frozen'],
   'Oils & condiments': ['oil','vinegar','sauce','soy','tamari','tahini','mustard','mayo','mayonnaise','ketchup','sriracha','harissa','pesto','miso','worcestershire','fish sauce','hot sauce','dressing'],
-  'Herbs & spices': ['salt','pepper','cumin','paprika','turmeric','cinnamon','oregano','thyme','rosemary','bay','chilli flake','cayenne','coriander seed','cardamom','nutmeg','clove','star anise','sumac','za'atar','ras el hanout','spice','seasoning','stock','bouillon']
+  'Herbs & spices': ['salt','pepper','cumin','paprika','turmeric','cinnamon','oregano','thyme','rosemary','bay','chilli flake','cayenne','coriander seed','cardamom','nutmeg','clove','star anise','sumac','zaatar','ras el hanout','spice','seasoning','stock','bouillon']
 };
 function inferPantryCategory(name){
   const n=name.toLowerCase();
@@ -550,11 +547,10 @@ async function loadFromBin(){
   setSyncStatus('syncing','');
   try {
     const ctrl=new AbortController(); const tid=setTimeout(()=>ctrl.abort(),10000);
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`,{headers:{'X-Master-Key':JB_KEY},signal:ctrl.signal});
+    const r=await fetch('/api/storage',{signal:ctrl.signal});
     clearTimeout(tid);
     if(!r.ok) throw new Error('HTTP '+r.status);
-    const data=await r.json();
-    const j=data.record;
+    const j=await r.json();
     if(j.recipes) S.recipes=j.recipes;
     if(j.pantry)  { S.pantry=j.pantry; S.pantry.forEach(p=>{ if(!p.pantryCategory) p.pantryCategory=inferPantryCategory(p.name); }); }
     if(j.weeks)   S.weeks=j.weeks;
@@ -575,9 +571,9 @@ async function saveToBin(){
   const h=stateHash(); if(h===lastSavedHash){ setSyncStatus('ok','No changes'); return; }
   setSyncStatus('syncing','');
   try {
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}`,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
+    const r=await fetch('/api/storage',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         recipes:S.recipes, pantry:S.pantry, weeks:S.weeks, settings:S.settings,
         shoppingTicked:S.shoppingTicked, shoppingRestocked:S.shoppingRestocked,
@@ -585,6 +581,7 @@ async function saveToBin(){
       })
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
+    lastSavedHash=stateHash();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
   } catch(e){ setSyncStatus('error', e.message.slice(0,30)); }
 }
