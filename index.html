@@ -288,11 +288,13 @@
           <h1>Recipe bank</h1>
           <div class="row-gap">
             <button class="btn btn-sm hide-mobile" onclick="openModal('url')">+ From URL</button>
+            <button class="btn btn-sm hide-mobile" onclick="openGenerateRecipe()">✦ Generate</button>
             <button class="btn btn-primary btn-sm" onclick="openModal('manual')">+ Add</button>
           </div>
         </div>
       </div>
       <button class="btn btn-sm" style="width:100%;margin-bottom:12px;display:none" id="mobile-url-btn" onclick="openModal('url')">+ Add from URL</button>
+      <button class="btn btn-sm btn-ghost" style="width:100%;margin-bottom:12px;display:none" id="mobile-gen-recipe-btn" onclick="openGenerateRecipe()">✦ Generate recipe</button>
       <div id="recipe-list"></div>
     </div>
 
@@ -340,7 +342,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Sainsbury's
         </a>
-        <a href="https://https://www.amazon.co.uk/fmc/storefront?almBrandId=QW1hem9uIEZyZXNo" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
+        <a href="https://www.amazon.co.uk/fmc/storefront?almBrandId=QW1hem9uIEZyZXNo" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;display:flex;align-items:center;gap:5px">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Amazon Fresh
         </a>
@@ -556,6 +558,8 @@ function onTabChange(name){
   const urlBtn=document.getElementById('mobile-url-btn');
   if(genBtn) genBtn.style.display=(name==='planner'&&isMobile())?'block':'none';
   if(urlBtn) urlBtn.style.display=(name==='recipes'&&isMobile())?'block':'none';
+  const genRecipeBtn=document.getElementById('mobile-gen-recipe-btn');
+  if(genRecipeBtn) genRecipeBtn.style.display=(name==='recipes'&&isMobile())?'block':'none';
   ({planner:renderPlanner,recipes:renderRecipes,pantry:renderPantry,shopping:renderShopping})[name]?.();
 }
 function changeWeek(d){ S.weekOffset+=d; renderPlanner(); }
@@ -826,6 +830,7 @@ function renderRecipes(){
     el.innerHTML='<div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><p>No recipes yet.</p></div>';
     return;
   }
+  const aiIcon=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px" title="AI-generated"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>`;
   const sorted=[...S.recipes].sort((a,b)=>(b.rating||0)-(a.rating||0));
   el.innerHTML=sorted.map(r=>{
     const upActive=r.rating===1?'active':'';
@@ -833,7 +838,7 @@ function renderRecipes(){
     return `<div class="recipe-card">
       <div class="row-between" style="align-items:flex-start">
         <div style="min-width:0;flex:1;margin-right:8px">
-          <div class="recipe-card-title">${r.name}</div>
+          <div class="recipe-card-title">${r.aiGenerated?`<span style="color:var(--sage);opacity:0.7" title="AI-generated">${aiIcon}</span>`:""}${r.name}</div>
           <div class="recipe-card-meta">${r.ingredients?r.ingredients.length+' ingredients':''} ${r.protein?'· ~'+r.protein+'g protein':''}</div>
           ${r.ingredients?'<div class="recipe-card-ings">'+r.ingredients.slice(0,4).map(i=>i.name).join(', ')+(r.ingredients.length>4?'…':'')+'</div>':''}
         </div>
@@ -1116,6 +1121,76 @@ function pantryFormHTML(pf={}){
     <button class="btn btn-primary btn-full" id="p-save-btn" ${!pf.id?'onclick="savePantry()"':''}>${pf.id?'Update item':'Add to pantry'}</button>
     <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
   </div>`;
+}
+
+async function openGenerateRecipe(){
+  document.getElementById('modal-title').textContent='Generate recipe';
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-size:13px;color:var(--ink-mid);margin-bottom:16px">AI will generate a recipe based on your dietary profile.</div>
+    <div class="field"><label>Any preferences? (optional)</label><input type="text" id="gen-hint" placeholder="e.g. quick weeknight, comfort food, high protein…"/></div>
+    <div id="gen-status" class="status-bar" style="display:none"><div class="spinner"></div><span>Generating recipe...</span></div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
+      <button class="btn btn-terra btn-full" id="gen-go-btn" onclick="generateRecipe()">✦ Generate</button>
+      <button class="btn btn-ghost btn-full" onclick="closeModal()">Cancel</button>
+    </div>`;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+async function generateRecipe(){
+  const hint=document.getElementById('gen-hint')?.value.trim()||'';
+  const statusEl=document.getElementById('gen-status');
+  const goBtn=document.getElementById('gen-go-btn');
+  if(statusEl) statusEl.style.display='flex';
+  if(goBtn) goBtn.disabled=true;
+  const prompt=`${buildPrompt()}
+
+Generate a single original dinner recipe that strictly follows all the dietary rules above.${hint?' The user wants: '+hint+'.':''}
+
+Return ONLY a JSON object, no markdown or explanation:
+{"name":"...","protein":number_or_null,"tags":["..."],"method":"Step-by-step cooking instructions here as a single string with numbered steps","ingredients":[{"name":"...","qty":number,"unit":"...","category":"Fish & seafood|Fruit & veg|Dairy & eggs|Grains & pulses|Cupboard|Frozen|Other"}]}
+
+The method should be detailed step-by-step instructions. Protein should be estimated grams per serving.`;
+  try {
+    const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
+    const data=await res.json();
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const match=raw.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('No recipe data found');
+    const recipe=JSON.parse(match[0]);
+    recipe.aiGenerated=true;
+    if(statusEl) statusEl.style.display='none';
+    // Show preview with 3 action buttons
+    document.getElementById('modal-title').textContent=recipe.name;
+    document.getElementById('modal-body').innerHTML=`
+      <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">${recipe.protein?'~'+recipe.protein+'g protein · ':''} ${recipe.ingredients?recipe.ingredients.length+' ingredients':''}</div>
+      <div style="margin-bottom:14px">
+        ${recipe.tags&&recipe.tags.length?recipe.tags.map(t=>`<span class="badge badge-muted" style="margin-right:4px">${t}</span>`).join(''):''}
+        <span class="badge badge-sage" style="margin-right:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>AI-generated</span>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Ingredients</div>
+        ${recipe.ingredients?recipe.ingredients.map(i=>`<div style="font-size:13px;color:var(--ink-mid);padding:3px 0;border-bottom:1px solid var(--border)">${i.name}${i.qty?' — '+i.qty+' '+(i.unit||''):''}` ).join(''):''}
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Method</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;white-space:pre-line">${recipe.method||''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-primary btn-full" onclick="saveGeneratedRecipe(${JSON.stringify(recipe).replace(/"/g,'&quot;')})">+ Save to recipe bank</button>
+        <button class="btn btn-ghost btn-full" onclick="openGenerateRecipe()">↺ Generate another</button>
+        <button class="btn btn-ghost btn-full" onclick="closeModal()">Close</button>
+      </div>`;
+  } catch(e){
+    if(statusEl) statusEl.style.display='none';
+    if(goBtn) goBtn.disabled=false;
+    alert('Could not generate recipe: '+e.message);
+  }
+}
+
+function saveGeneratedRecipe(recipe){
+  S.recipes.push({id:uid('r'), name:recipe.name, protein:recipe.protein||null, tags:recipe.tags||[], method:recipe.method||'', ingredients:recipe.ingredients||[], rating:null, aiGenerated:true});
+  closeModal(); renderRecipes(); scheduleSave(); toast('Recipe saved ✓');
 }
 
 async function extractUrl(){
