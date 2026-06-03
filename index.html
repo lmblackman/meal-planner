@@ -383,8 +383,18 @@
           Baked into all AI-generated plans.
         </div>
         <div class="divider"></div>
+        <div class="section-label">Profile</div>
+        <div class="field">
+          <label>Active profile</label>
+          <select id="profile-select" onchange="switchProfile(this.value)"></select>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:-4px;margin-bottom:4px">
+          <div style="font-size:12px;color:var(--ink-light)">Each profile has its own recipes, pantry and plans.</div>
+          <button class="btn btn-sm btn-danger" onclick="deleteCurrentProfile()" style="font-size:11px;padding:3px 8px">Delete profile</button>
+        </div>
+        <div class="divider"></div>
         <div class="section-label">Data</div>
-        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">All data syncs to JSONBin automatically.</div>
+        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px">All data syncs automatically.</div>
         <div class="row-gap">
           <button class="btn btn-sm" onclick="loadFromBin()">Sync now</button>
           <button class="btn btn-sm btn-danger" onclick="clearAll()">Clear all data</button>
@@ -445,6 +455,12 @@ Anti-inflammatory: turmeric, ginger, garlic, cinnamon, berries, leafy greens
 Avoid: gluten in any form, meat, sugary drinks, white rice in large portions, processed foods`;
 
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DEFAULT_PROFILE = 'Laurie & Sylvie';
+function getProfile(){ return localStorage.getItem('mealPlannerProfile') || DEFAULT_PROFILE; }
+function setProfile(name){ localStorage.setItem('mealPlannerProfile', name); }
+function storageUrl(){ return '/api/storage?profile='+encodeURIComponent(getProfile()); }
+async function fetchProfiles(){ try { const r=await fetch('/api/profiles'); return r.ok?(await r.json()):([DEFAULT_PROFILE]); } catch(e){ return [DEFAULT_PROFILE]; } }
+async function saveProfiles(arr){ try { await fetch('/api/profiles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); } catch(e){} }
 const CATS = ['Fish & seafood','Fruit & veg','Dairy & eggs','Grains & pulses','Cupboard','Frozen','Other'];
 const PANTRY_CATS = ['Fish & seafood','Fruit & veg','Dairy & eggs','Grains & pulses','Cupboard','Frozen','Oils & condiments','Herbs & spices','Other'];
 const CAT_KEYWORDS = {
@@ -547,7 +563,7 @@ async function loadFromBin(){
   setSyncStatus('syncing','');
   try {
     const ctrl=new AbortController(); const tid=setTimeout(()=>ctrl.abort(),10000);
-    const r=await fetch('/api/storage',{signal:ctrl.signal});
+    const r=await fetch(storageUrl(),{signal:ctrl.signal});
     clearTimeout(tid);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j=await r.json();
@@ -571,7 +587,7 @@ async function saveToBin(){
   const h=stateHash(); if(h===lastSavedHash){ setSyncStatus('ok','No changes'); return; }
   setSyncStatus('syncing','');
   try {
-    const r=await fetch('/api/storage',{
+    const r=await fetch(storageUrl(),{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -587,11 +603,51 @@ async function saveToBin(){
 }
 
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToBin,4000); }
+async function applyProfile(){
+  const sel=document.getElementById('profile-select');
+  if(!sel) return;
+  const current=getProfile();
+  const profiles=await fetchProfiles();
+  sel.innerHTML=profiles.map(p=>`<option value="${p}"${p===current?' selected':''}>${p}</option>`).join('')
+    +'<option value="__new__">+ Create new profile</option>';
+}
+function switchProfile(name){
+  if(name==='__new__'){ promptNewProfile(); return; }
+  setProfile(name);
+  S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0,shoppingTicked:{},shoppingRestocked:{},cookedMeals:{}};
+  lastSavedHash=null;
+  renderAll(); applySettings(); loadFromBin();
+  toast('Switched to '+name);
+}
+async function promptNewProfile(){
+  const name=(prompt('New profile name:')||'').trim();
+  if(!name) return;
+  const profiles=await fetchProfiles();
+  if(profiles.includes(name)){ alert('A profile with that name already exists.'); applyProfile(); return; }
+  profiles.push(name);
+  await saveProfiles(profiles);
+  setProfile(name);
+  S={recipes:[],pantry:[],weeks:{},settings:{mealsPerWeek:5,avoidWeeks:2},weekOffset:0,shoppingTicked:{},shoppingRestocked:{},cookedMeals:{}};
+  lastSavedHash=null;
+  renderAll(); applySettings(); loadFromBin();
+  toast('Profile created: '+name);
+}
+async function deleteCurrentProfile(){
+  const profiles=await fetchProfiles();
+  const current=getProfile();
+  if(profiles.length<=1){ alert('Cannot delete the only profile.'); return; }
+  if(!confirm('Delete profile "'+current+'" and all its data? This cannot be undone.')) return;
+  const next=profiles.find(p=>p!==current);
+  await saveProfiles(profiles.filter(p=>p!==current));
+  switchProfile(next);
+  toast('Profile deleted');
+}
 function applySettings(){
   const ms=document.getElementById('set-meals');
   const aw=document.getElementById('set-avoid');
   if(ms) ms.value=S.settings.mealsPerWeek||5;
   if(aw) aw.value=S.settings.avoidWeeks||2;
+  applyProfile();
 }
 function saveSetting(k,v){ S.settings[k]=v; scheduleSave(); }
 function clearAll(){
