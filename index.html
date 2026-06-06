@@ -617,6 +617,7 @@ async function loadFromBin(){
     if(j.cookedMeals) S.cookedMeals=j.cookedMeals;
     applySettings(); renderAll();
     lastSavedHash=stateHash();
+    lastLoadTime=Date.now();
     setSyncStatus('ok', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
     ['purchased-ticked-btn','purchased-all-btn'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.disabled=false;
@@ -1336,4 +1337,15 @@ function copyList(){
 }
 
 applySettings(); renderAll(); loadFromBin();
+
+// Re-sync when tab becomes visible or window regains focus, if it's been >60s since last load
+let lastLoadTime = Date.now();
+async function syncIfStale(){
+  if(Date.now()-lastLoadTime > 60000){
+    lastLoadTime=Date.now();
+    await loadFromBin();
+  }
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') syncIfStale(); });
+window.addEventListener('focus', syncIfStale);
 </script>
